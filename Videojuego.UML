@@ -1,0 +1,49 @@
+@startuml
+
+' Excepción personalizada
+class NivelInvalido <<Exception>> {
+}
+
+' Clase abstracta principal
+abstract class Personaje {
+    - nombre: str
+    - nivel: int
+    + atacar(): void
+    + accionEspecial(): void
+}
+
+' Interfaces de habilidades
+interface HabilidadesMagicas {
+    + lanzar_hechizo(): void
+}
+
+interface HabilidadesFisicas {
+    + golpear(): void
+}
+
+' Subclases
+class Jugador {
+    - clase: str
+    + accionEspecial(): void
+}
+
+class Enemigo {
+    - tipo: str
+    + accionEspecial(): void
+}
+
+class MagoGuerrero {
+    + lanzar_hechizo(): void
+    + golpear(): void
+    + accionEspecial(): void
+}
+
+' Relaciones
+Personaje <|-- Jugador
+Personaje <|-- Enemigo
+Personaje <|-- MagoGuerrero
+
+HabilidadesMagicas <|.. MagoGuerrero
+HabilidadesFisicas <|.. MagoGuerrero
+
+@enduml
