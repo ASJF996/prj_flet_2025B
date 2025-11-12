@@ -92,7 +92,6 @@ class ModeloJuego:
                     )
                     break
 
-        # Colisiones jugador-enemigo
         jugador_rect = pygame.Rect(self.jugador.x, self.jugador.y, self.jugador.ancho, self.jugador.alto)
         for enemigo in self.enemigos:
             enemigo_rect = pygame.Rect(enemigo.x, enemigo.y, enemigo.ancho, enemigo.alto)
