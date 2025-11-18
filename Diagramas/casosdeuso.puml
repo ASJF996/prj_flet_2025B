@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+actor Jugador as g
+
+package espacio {
+  usecase "disparar" as UC1
+  usecase "desplazarse" as UC2
+  usecase "morir" as UC3
+  usecase "empezar juego" as UC4
+  usecase "finalizar juego" as UC5
+}
+g --> UC4
+g --> UC1
+g --> UC2
+g --> UC3
+g --> UC5
+@enduml
+
+@startuml
+left to right direction
+actor Enemigo as g
+
+package espacio {
+  usecase "disparar" as UC1
+  usecase "morir" as UC2
+  usecase "desplazarse" as UC3
+  usecase "usar habilidad" as UC4
+}
+g --> UC1
+g --> UC2
+g --> UC3
+g --> UC4
+
+@enduml
