@@ -1,145 +1,211 @@
-from __future__ import annotations
 import pygame
 import random
-from typing import TypeVar, Generic, List, Tuple
+import time
+import os
+from dao import UsuarioDAO
 
-
-T = TypeVar("T", bound="Entidad")
-
-
-class Entidad(Generic[T]):
-    """Clase base para cualquier objeto del juego con posición, tamaño y color o imagen."""
-
-    def __init__(self, x: int, y: int, ancho: int, alto: int, color: Tuple[int, int, int],
-                 velocidad: int = 0, imagen: pygame.Surface | None = None):
+class Entidad:
+    def __init__(self, x, y, ancho, alto, velocidad=0, imagen=None):
         self.x = x
         self.y = y
         self.ancho = ancho
         self.alto = alto
-        self.color = color
         self.velocidad = velocidad
-        self.imagen = imagen  # 🔹 Nueva propiedad
+        self.imagen = imagen
 
-    def rect(self) -> pygame.Rect:
+    def rect(self):
         return pygame.Rect(self.x, self.y, self.ancho, self.alto)
 
+    def dibujar(self, pantalla):
+        if self.imagen:
+            pantalla.blit(self.imagen, (self.x, self.y))
+        else:
+            pygame.draw.rect(pantalla, (255,0,0), self.rect())
 
-
-    def dibujar(self, pantalla: pygame.Surface) -> None:
-        """Dibuja el objeto en la pantalla."""
-        pygame.draw.rect(pantalla, self.color, self.rect())
-
-    def mover(self, *args, **kwargs) -> None:
-        """Método genérico que pueden sobreescribir las subclases."""
-        pass
-
-
-
-
-class Jugador(Entidad["Jugador"]):
-    def __init__(self, x: int, y: int, velocidad: int = 5):
-        super().__init__(x, y, 50, 50, (0, 255, 0), velocidad)
-
-    def mover(self, dx: int, dy: int, ancho_pantalla: int, alto_pantalla: int) -> None:
-        """Movimiento controlado del jugador dentro de los límites de la pantalla."""
+    def mover(self, dx=0, dy=0, ancho_pantalla=800, alto_pantalla=600):
         self.x += dx * self.velocidad
         self.y += dy * self.velocidad
         self.x = max(0, min(self.x, ancho_pantalla - self.ancho))
         self.y = max(0, min(self.y, alto_pantalla - self.alto))
 
+class Jugador(Entidad):
+    def __init__(self, x, y, imagen):
+        super().__init__(x, y, imagen.get_width(), imagen.get_height(), velocidad=5, imagen=imagen)
+        self.vidas = 3
 
-class Enemigo(Entidad["Enemigo"]):
-    def __init__(self, x: int, y: int, velocidad: int = 3):
-        super().__init__(x, y, 40, 40, (255, 0, 0), velocidad)
+class Enemigo:
+    def __init__(self, x, y, imagen, velocidad_y=3):
+        self.x = x
+        self.y = y
+        self.imagen = imagen
+        self.ancho = imagen.get_width()
+        self.alto = imagen.get_height()
+        self.velocidad_y = velocidad_y
 
-    def mover(self, ancho_pantalla: int, alto_pantalla: int) -> None:
-        """Movimiento descendente del enemigo con reposición aleatoria."""
-        self.y += self.velocidad
-        if self.y > alto_pantalla:
-            self.y = random.randint(-100, -40)
-            self.x = random.randint(0, ancho_pantalla - self.ancho)
+    def mover(self):
+        self.y += self.velocidad_y
 
+    def dibujar(self, pantalla):
+        pantalla.blit(self.imagen, (self.x, self.y))
 
-class Proyectil(Entidad["Proyectil"]):
-    def __init__(self, x: int, y: int, velocidad: int = 8):
-        super().__init__(x, y, 5, 10, (255, 255, 0), velocidad)
+    def rect(self):
+        return pygame.Rect(self.x, self.y, self.ancho, self.alto)
 
-    def mover(self) -> None:
-        """Movimiento vertical ascendente del proyectil."""
+class Proyectil(Entidad):
+    def __init__(self, x, y, velocidad=8, imagen=None):
+        super().__init__(x, y, 5, 10, velocidad=velocidad, imagen=imagen)
+
+    def mover(self):
         self.y -= self.velocidad
 
+class Login:
+    def __init__(self, dao: UsuarioDAO):
+        self.dao = dao
+        self.usuario_ingresado = ""
+        self.contraseña_ingresada = ""
+        self.escribiendo_usuario = True
+        self.login_exitoso = False
 
+    def registrar_usuario(self, usuario, contraseña):
+        try:
+            self.dao.agregar_usuario(usuario, contraseña)
+            return True
+        except ValueError:
+            return False
 
+    def procesar_tecla(self, tecla):
+        if self.login_exitoso:
+            return
+        if tecla == pygame.K_BACKSPACE:
+            if self.escribiendo_usuario:
+                self.usuario_ingresado = self.usuario_ingresado[:-1]
+            else:
+                self.contraseña_ingresada = self.contraseña_ingresada[:-1]
+        elif tecla == pygame.K_RETURN:
+            if self.escribiendo_usuario:
+                self.escribiendo_usuario = False
+            else:
+                if self.dao.verificar_usuario(self.usuario_ingresado, self.contraseña_ingresada):
+                    self.login_exitoso = True
+                else:
+                    self.usuario_ingresado = ""
+                    self.contraseña_ingresada = ""
+                    self.escribiendo_usuario = True
+        else:
+            letra = pygame.key.name(tecla)
+            if len(letra) == 1:
+                if self.escribiendo_usuario:
+                    self.usuario_ingresado += letra
+                else:
+                    self.contraseña_ingresada += letra
 
 class ModeloJuego:
-    """Contiene toda la lógica del juego (modelo del patrón MVC)."""
-
-    def __init__(self, ancho: int = 800, alto: int = 600, num_enemigos: int = 5):
+    def __init__(self, pantalla, ancho=800, alto=600, usuario_logeado=None):
+        self.pantalla = pantalla
         self.ancho = ancho
         self.alto = alto
-        self.jugador = Jugador(ancho // 2, alto - 60)
-        self.enemigos: List[Enemigo] = [
-            Enemigo(random.randint(0, ancho - 40), random.randint(-200, -40))
-            for _ in range(num_enemigos)
-        ]
-        self.proyectiles: List[Proyectil] = []
-        self.game_over: bool = False
-        self.puntaje: int = 0
-        self.escenario_index: int = 0
-        self.escenarios: List[str] = ["espacio", "desierto", "ciudad"]
+        self.dao = UsuarioDAO()
+        self.login = Login(self.dao)
+        if usuario_logeado:
+            self.login.usuario_ingresado = usuario_logeado
+            self.login.login_exitoso = True
 
-    def disparar(self) -> None:
-        """Crea un nuevo proyectil desde la posición del jugador."""
-        nuevo = Proyectil(self.jugador.x + self.jugador.ancho // 2 - 2, self.jugador.y)
-        self.proyectiles.append(nuevo)
+        self.escenarios = ["andromeda.jpg","planetas.jpg","saturno.jpg"]
+        self.nivel_actual = 0
+        self.fondos = {}
+        for fondo in self.escenarios:
+            path = os.path.join("assets", fondo)
+            self.fondos[fondo] = pygame.image.load(path).convert()
+        jugador_img = pygame.image.load(os.path.join("assets","jugador.png")).convert_alpha()
+        self.jugador = Jugador(ancho//2, alto-60, jugador_img)
+        self.enemigos = []
+        self.proyectiles = []
+        self.enemigos_proyectiles = []
+        self.ultimo_spawn = time.time()
+        self.spawn_delay = 1.0
+        self.game_over = False
+        self.puntaje = 0
 
-    def cambiar_escenario(self) -> None:
-        """Cambia el escenario actual de forma cíclica."""
-        self.escenario_index = (self.escenario_index + 1) % len(self.escenarios)
+    def crear_enemigo(self):
+        enemigo_img = pygame.image.load(os.path.join("assets","enemigo.png")).convert_alpha()
+        velocidad = 2 + self.nivel_actual
+        x = random.randint(0, self.ancho-40)
+        y = random.randint(-100, -40)
+        self.enemigos.append(Enemigo(x, y, enemigo_img, velocidad))
 
-    def actualizar(self) -> None:
-        """Actualiza el estado general del juego."""
-        if self.game_over:
-            return
+    def disparar(self):
+        p = Proyectil(self.jugador.x + self.jugador.ancho//2 -2, self.jugador.y)
+        self.proyectiles.append(p)
 
-        
-        for enemigo in self.enemigos:
-            enemigo.mover(self.ancho, self.alto)
+    def enemigo_disparo(self, enemigo):
+        p = Proyectil(enemigo.x + enemigo.ancho//2 -2, enemigo.y + enemigo.alto, velocidad=-5)
+        self.enemigos_proyectiles.append(p)
 
-        
+    def actualizar(self):
+        # Spawn continuo
+        if time.time() - self.ultimo_spawn > self.spawn_delay:
+            self.crear_enemigo()
+            self.ultimo_spawn = time.time()
+
+        # Mover enemigos
+        for e in self.enemigos[:]:
+            e.mover()
+            # Enemigo dispara aleatoriamente
+            if random.random() < 0.01:
+                self.enemigo_disparo(e)
+            if e.y > self.alto:
+                self.enemigos.remove(e)
+
+        # Mover proyectiles jugador
         for p in self.proyectiles:
             p.mover()
-
-        
         self.proyectiles = [p for p in self.proyectiles if p.y > -p.alto]
 
-        
+        # Mover proyectiles enemigos
+        for p in self.enemigos_proyectiles:
+            p.y += -p.velocidad  # invierte dirección
+        self.enemigos_proyectiles = [p for p in self.enemigos_proyectiles if p.y < self.alto]
+
+        # Colisiones proyectil-enemigo
         for p in self.proyectiles[:]:
             for e in self.enemigos[:]:
                 if p.rect().colliderect(e.rect()):
                     self.enemigos.remove(e)
                     self.proyectiles.remove(p)
                     self.puntaje += 10
-                    
-                    self.enemigos.append(
-                        Enemigo(random.randint(0, self.ancho - 40), random.randint(-200, -40))
-                    )
                     break
 
-        
-        for enemigo in self.enemigos:
-            if self.jugador.rect().colliderect(enemigo.rect()):
-                self.game_over = True
-                break
+        # Colisiones enemigo-jugador
+        for e in self.enemigos[:]:
+            if self.jugador.rect().colliderect(e.rect()):
+                self.jugador.vidas -=1
+                self.enemigos.remove(e)
+                if self.jugador.vidas <=0:
+                    self.game_over = True
 
-    def reiniciar(self) -> None:
-        """Reinicia el estado del juego sin recrear el objeto."""
-        self.jugador = Jugador(self.ancho // 2, self.alto - 60)
-        self.enemigos = [
-            Enemigo(random.randint(0, self.ancho - 40), random.randint(-200, -40))
-            for _ in range(5)
-        ]
-        self.proyectiles = []
+        # Colisiones proyectiles enemigos-jugador
+        for p in self.enemigos_proyectiles[:]:
+            if self.jugador.rect().colliderect(p.rect()):
+                self.jugador.vidas -=1
+                self.enemigos_proyectiles.remove(p)
+                if self.jugador.vidas <=0:
+                    self.game_over = True
+
+        # Subir nivel
+        if self.puntaje >= (self.nivel_actual+1)*50:
+            self.nivel_actual = min(self.nivel_actual+1,len(self.escenarios)-1)
+            self.jugador.x = self.ancho//2
+            self.jugador.y = self.alto-60
+            self.spawn_delay = max(0.3,self.spawn_delay-0.2)
+
+    def reiniciar(self):
+        self.jugador.vidas = 3
         self.puntaje = 0
+        self.nivel_actual = 0
+        self.jugador.x = self.ancho//2
+        self.jugador.y = self.alto-60
+        self.enemigos = []
+        self.proyectiles = []
+        self.enemigos_proyectiles = []
+        self.spawn_delay = 1.0
         self.game_over = False
-        self.escenario_index = 0

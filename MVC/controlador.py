@@ -1,45 +1,47 @@
 import pygame
 from modelo import ModeloJuego
+from vista import Vista
 
-class ControladorJuego:
-    def __init__(self, modelo: ModeloJuego):
-        self.modelo = modelo
-        self.corriendo = True
-        self.tiempo_ultimo_disparo = 0
-        self.tiempo_entre_disparos = 300 
+class Controlador:
+    def __init__(self, pantalla, usuario=None):
+        self.pantalla = pantalla
+        self.modelo = ModeloJuego(pantalla, usuario_logeado=usuario)
+        self.vista = Vista(self.modelo)
 
-    def manejar_eventos(self):
-        dx = dy = 0
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                self.corriendo = False
+    def iniciar(self):
+        reloj = pygame.time.Clock()
+        corriendo = True
 
-        teclas = pygame.key.get_pressed()
+        while corriendo:
+            self.vista.dibujar()
 
-        if teclas[pygame.K_LEFT]:
-            dx = -1
-        elif teclas[pygame.K_RIGHT]:
-            dx = 1
-        if teclas[pygame.K_UP]:
-            dy = -1
-        elif teclas[pygame.K_DOWN]:
-            dy = 1
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    corriendo = False
+                elif evento.type == pygame.KEYDOWN:
+                    if not self.modelo.login.login_exitoso:
+                        self.modelo.login.procesar_tecla(evento.key)
+                    else:
+                        if evento.key == pygame.K_SPACE:
+                            self.modelo.disparar()
+                        if evento.key == pygame.K_r and self.modelo.game_over:
+                            self.modelo.reiniciar()
 
-    
-        if not self.modelo.game_over:
-            self.modelo.jugador.mover(dx, dy, self.modelo.ancho, self.modelo.alto)
+            if self.modelo.login.login_exitoso and not self.modelo.game_over:
+                teclas = pygame.key.get_pressed()
+                dx, dy = 0,0
+                if teclas[pygame.K_LEFT]:
+                    dx = -1
+                if teclas[pygame.K_RIGHT]:
+                    dx = 1
+                if teclas[pygame.K_UP]:
+                    dy = -1
+                if teclas[pygame.K_DOWN]:
+                    dy = 1
+                self.modelo.jugador.mover(dx, dy, self.modelo.ancho, self.modelo.alto)
+                self.modelo.actualizar()
+            
+            if self.modelo.game_over:
+                self.vista.mostrar_game_over()
 
-            # Disparo con espacio
-            tiempo_actual = pygame.time.get_ticks()
-            if teclas[pygame.K_SPACE] and (tiempo_actual - self.tiempo_ultimo_disparo > self.tiempo_entre_disparos):
-                self.modelo.disparar()
-                self.tiempo_ultimo_disparo = tiempo_actual
-
-            # Cambiar escenario con tecla E
-            if teclas[pygame.K_e]:
-                self.modelo.cambiar_escenario()
-                pygame.time.wait(200)  
-        else:
-            # Reiniciar con tecla R
-            if teclas[pygame.K_r]:
-                self.modelo.reiniciar()
+            reloj.tick(60)

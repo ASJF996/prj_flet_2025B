@@ -1,64 +1,35 @@
 import pygame
-import os
 
-class VistaJuego:
+class Vista:
     def __init__(self, modelo):
         self.modelo = modelo
-        self.pantalla = pygame.display.set_mode((modelo.ancho, modelo.alto))
-        pygame.display.set_caption("Juego MVC con Naves 🚀")
-        self.fuente = pygame.font.SysFont(None, 36)
-
-        base = os.path.join(os.path.dirname(__file__), "assets")
-
-        # Cargar imágenes de fondo
-        self.fondos = {}
-        for nombre in self.modelo.escenarios:
-            ruta = os.path.join(base, f"fondo_{nombre}.jpg")
-            if os.path.exists(ruta):
-                imagen = pygame.image.load(ruta).convert()
-                imagen = pygame.transform.scale(imagen, (self.modelo.ancho, self.modelo.alto))
-                self.fondos[nombre] = imagen
-            else:
-                print(f"⚠️ No se encontró: {ruta}")
-
-        # 🔹 Cargar imágenes de las naves
-        self.img_jugador = pygame.image.load(os.path.join(base, "nave_jugador.png")).convert_alpha()
-        self.img_enemigo = pygame.image.load(os.path.join(base, "nave_enemigo.png")).convert_alpha()
 
     def dibujar(self):
-        escenario = self.modelo.escenarios[self.modelo.escenario_index]
-        fondo = self.fondos.get(escenario)
-        if fondo:
-            self.pantalla.blit(fondo, (0, 0))
+        pantalla = self.modelo.pantalla
+        if self.modelo.login.login_exitoso:
+            fondo = self.modelo.fondos[self.modelo.escenarios[self.modelo.nivel_actual]]
+            pantalla.blit(fondo, (0,0))
+            self.modelo.jugador.dibujar(pantalla)
+            for e in self.modelo.enemigos:
+                e.dibujar(pantalla)
+            for p in self.modelo.proyectiles:
+                p.dibujar(pantalla)
+            for p in self.modelo.enemigos_proyectiles:
+                p.dibujar(pantalla)
+            fuente = pygame.font.Font(None, 30)
+            texto = fuente.render(f"Vidas: {self.modelo.jugador.vidas}  Puntaje: {self.modelo.puntaje}  Nivel: {self.modelo.nivel_actual+1}", True, (255,255,255))
+            pantalla.blit(texto, (10,10))
         else:
-            self.pantalla.fill((0, 0, 0))
+            pantalla.fill((0,0,0))
+            fuente = pygame.font.Font(None, 40)
+            titulo = fuente.render("LOGIN", True, (255,255,255))
+            pantalla.blit(titulo, (self.modelo.ancho//2 - 50, 100))
 
-        # 🔹 Dibujar jugador (con imagen)
-        jugador = self.modelo.jugador
-        self.pantalla.blit(self.img_jugador, (jugador.x, jugador.y))
+        pygame.display.flip()
 
-        # 🔹 Dibujar enemigos (con imagen)
-        for enemigo in self.modelo.enemigos:
-            self.pantalla.blit(self.img_enemigo, (enemigo.x, enemigo.y))
-
-        # 🔹 Dibujar proyectiles (puedes mantenerlos como rectángulos)
-        for p in self.modelo.proyectiles:
-            pygame.draw.rect(self.pantalla, p.color, (p.x, p.y, p.ancho, p.alto))
-
-        # Texto HUD
-        texto = self.fuente.render(f"Puntaje: {self.modelo.puntaje}", True, (255, 255, 255))
-        self.pantalla.blit(texto, (10, 10))
-        texto2 = self.fuente.render(f"Escenario: {escenario}", True, (255, 255, 255))
-        self.pantalla.blit(texto2, (10, 40))
-
-        # Game Over
-        if self.modelo.game_over:
-            fuente_grande = pygame.font.SysFont(None, 72)
-            texto = fuente_grande.render("GAME OVER", True, (255, 0, 0))
-            rect = texto.get_rect(center=(self.modelo.ancho // 2, self.modelo.alto // 2))
-            self.pantalla.blit(texto, rect)
-            texto2 = self.fuente.render("Presiona R para reiniciar", True, (255, 255, 255))
-            rect2 = texto2.get_rect(center=(self.modelo.ancho // 2, self.modelo.alto // 2 + 50))
-            self.pantalla.blit(texto2, rect2)
-
+    def mostrar_game_over(self):
+        pantalla = self.modelo.pantalla
+        fuente = pygame.font.Font(None, 60)
+        texto = fuente.render("GAME OVER", True, (255,0,0))
+        pantalla.blit(texto, (self.modelo.ancho//2 - 150, self.modelo.alto//2 - 30))
         pygame.display.flip()

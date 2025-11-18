@@ -1,26 +1,15 @@
 import pygame
-from modelo import ModeloJuego
-from vista import VistaJuego
-from controlador import ControladorJuego
+from controlador import Controlador
+import sys
 
-def main():
+def main(usuario=None):
     pygame.init()
-
-    # Crear las instancias principales del patrón MVC
-    modelo = ModeloJuego()
-    vista = VistaJuego(modelo)
-    controlador = ControladorJuego(modelo)
-
-    reloj = pygame.time.Clock()
-
-    while controlador.corriendo:
-        controlador.manejar_eventos()
-        modelo.actualizar()
-        vista.dibujar()
-        reloj.tick(60)  
-
-    
+    pantalla = pygame.display.set_mode((800, 600))
+    pygame.display.set_caption("Juego MVC")
+    controlador = Controlador(pantalla, usuario=usuario)
+    controlador.iniciar()
     pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    usuario = sys.argv[1] if len(sys.argv) > 1 else None
+    main(usuario)
