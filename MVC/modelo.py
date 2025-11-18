@@ -3,26 +3,30 @@ import random
 import time
 import os
 from dao import UsuarioDAO
+from typing import Generic, TypeVar, Optional
 
-class Entidad:
-    def __init__(self, x, y, ancho, alto, velocidad=0, imagen=None):
+
+T = TypeVar('T')  # Tipo genérico para la imagen u otro dato asociado
+
+class Entidad(Generic[T]):
+    def __init__(self, x: int, y: int, ancho: int, alto: int, velocidad: int = 0, imagen: Optional[T] = None):
         self.x = x
         self.y = y
         self.ancho = ancho
         self.alto = alto
         self.velocidad = velocidad
-        self.imagen = imagen
+        self.imagen: Optional[T] = imagen
 
-    def rect(self):
+    def rect(self) -> pygame.Rect:
         return pygame.Rect(self.x, self.y, self.ancho, self.alto)
 
     def dibujar(self, pantalla):
-        if self.imagen:
+        if isinstance(self.imagen, pygame.Surface):
             pantalla.blit(self.imagen, (self.x, self.y))
         else:
-            pygame.draw.rect(pantalla, (255,0,0), self.rect())
+            pygame.draw.rect(pantalla, (255, 0, 0), self.rect())
 
-    def mover(self, dx=0, dy=0, ancho_pantalla=800, alto_pantalla=600):
+    def mover(self, dx: int = 0, dy: int = 0, ancho_pantalla: int = 800, alto_pantalla: int = 600):
         self.x += dx * self.velocidad
         self.y += dy * self.velocidad
         self.x = max(0, min(self.x, ancho_pantalla - self.ancho))
@@ -52,11 +56,15 @@ class Enemigo:
         return pygame.Rect(self.x, self.y, self.ancho, self.alto)
 
 class Proyectil(Entidad):
-    def __init__(self, x, y, velocidad=8, imagen=None):
-        super().__init__(x, y, 5, 10, velocidad=velocidad, imagen=imagen)
+    def __init__(self, x, y, velocidad=8, color=(255,255,0)):
+        super().__init__(x, y, 5, 10, velocidad=velocidad)
+        self.color = color
 
-    def mover(self):
-        self.y -= self.velocidad
+    def mover(self, hacia_arriba=True):
+        self.y -= self.velocidad if hacia_arriba else -self.velocidad
+
+    def dibujar(self, pantalla):
+        pygame.draw.rect(pantalla, self.color, self.rect())
 
 class Login:
     def __init__(self, dao: UsuarioDAO):
@@ -100,16 +108,12 @@ class Login:
                     self.contraseña_ingresada += letra
 
 class ModeloJuego:
-    def __init__(self, pantalla, ancho=800, alto=600, usuario_logeado=None):
+    def __init__(self, pantalla, ancho=800, alto=600):
         self.pantalla = pantalla
         self.ancho = ancho
         self.alto = alto
         self.dao = UsuarioDAO()
         self.login = Login(self.dao)
-        if usuario_logeado:
-            self.login.usuario_ingresado = usuario_logeado
-            self.login.login_exitoso = True
-
         self.escenarios = ["andromeda.jpg","planetas.jpg","saturno.jpg"]
         self.nivel_actual = 0
         self.fondos = {}
@@ -120,7 +124,7 @@ class ModeloJuego:
         self.jugador = Jugador(ancho//2, alto-60, jugador_img)
         self.enemigos = []
         self.proyectiles = []
-        self.enemigos_proyectiles = []
+        self.proyectiles_enemigos = []
         self.ultimo_spawn = time.time()
         self.spawn_delay = 1.0
         self.game_over = False
@@ -137,12 +141,12 @@ class ModeloJuego:
         p = Proyectil(self.jugador.x + self.jugador.ancho//2 -2, self.jugador.y)
         self.proyectiles.append(p)
 
-    def enemigo_disparo(self, enemigo):
-        p = Proyectil(enemigo.x + enemigo.ancho//2 -2, enemigo.y + enemigo.alto, velocidad=-5)
-        self.enemigos_proyectiles.append(p)
+    def disparar_enemigo(self, enemigo):
+        p = Proyectil(enemigo.x + enemigo.ancho//2 -2, enemigo.y + enemigo.alto, velocidad=5, color=(255,0,0))
+        self.proyectiles_enemigos.append(p)
 
     def actualizar(self):
-        # Spawn continuo
+        # Spawn continuo de enemigos
         if time.time() - self.ultimo_spawn > self.spawn_delay:
             self.crear_enemigo()
             self.ultimo_spawn = time.time()
@@ -150,21 +154,20 @@ class ModeloJuego:
         # Mover enemigos
         for e in self.enemigos[:]:
             e.mover()
-            # Enemigo dispara aleatoriamente
-            if random.random() < 0.01:
-                self.enemigo_disparo(e)
+            if random.random() < 0.01 + self.nivel_actual*0.005:  # probabilidad de disparo
+                self.disparar_enemigo(e)
             if e.y > self.alto:
                 self.enemigos.remove(e)
 
-        # Mover proyectiles jugador
+        # Mover proyectiles del jugador
         for p in self.proyectiles:
             p.mover()
         self.proyectiles = [p for p in self.proyectiles if p.y > -p.alto]
 
-        # Mover proyectiles enemigos
-        for p in self.enemigos_proyectiles:
-            p.y += -p.velocidad  # invierte dirección
-        self.enemigos_proyectiles = [p for p in self.enemigos_proyectiles if p.y < self.alto]
+        # Mover proyectiles de enemigos
+        for p in self.proyectiles_enemigos:
+            p.mover(hacia_arriba=False)
+        self.proyectiles_enemigos = [p for p in self.proyectiles_enemigos if p.y < self.alto+p.alto]
 
         # Colisiones proyectil-enemigo
         for p in self.proyectiles[:]:
@@ -184,18 +187,16 @@ class ModeloJuego:
                     self.game_over = True
 
         # Colisiones proyectiles enemigos-jugador
-        for p in self.enemigos_proyectiles[:]:
+        for p in self.proyectiles_enemigos[:]:
             if self.jugador.rect().colliderect(p.rect()):
                 self.jugador.vidas -=1
-                self.enemigos_proyectiles.remove(p)
+                self.proyectiles_enemigos.remove(p)
                 if self.jugador.vidas <=0:
                     self.game_over = True
 
         # Subir nivel
         if self.puntaje >= (self.nivel_actual+1)*50:
             self.nivel_actual = min(self.nivel_actual+1,len(self.escenarios)-1)
-            self.jugador.x = self.ancho//2
-            self.jugador.y = self.alto-60
             self.spawn_delay = max(0.3,self.spawn_delay-0.2)
 
     def reiniciar(self):
@@ -206,6 +207,6 @@ class ModeloJuego:
         self.jugador.y = self.alto-60
         self.enemigos = []
         self.proyectiles = []
-        self.enemigos_proyectiles = []
+        self.proyectiles_enemigos = []
         self.spawn_delay = 1.0
         self.game_over = False

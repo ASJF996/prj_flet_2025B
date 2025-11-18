@@ -11,5 +11,7 @@ def main(usuario=None):
     pygame.quit()
 
 if __name__ == "__main__":
-    usuario = sys.argv[1] if len(sys.argv) > 1 else None
+    usuario = None
+    if len(sys.argv) > 1:
+        usuario = sys.argv[1]  # recibe el usuario desde Flet si se quiere
     main(usuario)

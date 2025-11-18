@@ -5,7 +5,9 @@ from vista import Vista
 class Controlador:
     def __init__(self, pantalla, usuario=None):
         self.pantalla = pantalla
-        self.modelo = ModeloJuego(pantalla, usuario_logeado=usuario)
+        self.modelo = ModeloJuego(pantalla)
+        if usuario:
+            self.modelo.login.login_exitoso = True
         self.vista = Vista(self.modelo)
 
     def iniciar(self):
@@ -24,7 +26,7 @@ class Controlador:
                     else:
                         if evento.key == pygame.K_SPACE:
                             self.modelo.disparar()
-                        if evento.key == pygame.K_r and self.modelo.game_over:
+                        elif evento.key == pygame.K_r and self.modelo.game_over:
                             self.modelo.reiniciar()
 
             if self.modelo.login.login_exitoso and not self.modelo.game_over:
