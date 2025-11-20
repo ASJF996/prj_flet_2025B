@@ -1,49 +1,89 @@
 @startuml
-class interfaz{
-    +id_usuario
-    #password
-    
-    +login()
-    +iniciarjuego()
-    +finalizarjuego()
-}
-class Personaje{
-    -nombre
-    -puntos_de_salud
-    -habilidad
 
-    +atacar()
-    +usarhabilidad()
-    +morir()
-    +desplazarse()
-    
-}
-class jugador{
-    -nombre 
-    -puntos_de_salud
-    -habilidad
-    
-    +disparar() 
-    +finalizarjuego()
-    +habilidadespecial()
-    +morir()
+' ===========================
+'        CLASES BASE
+' ===========================
+
+class Entidad {
+    +x: int
+    +y: int
+    +ancho: int
+    +alto: int
+    +color: (int, int, int)
+    +velocidad: int
+    +imagen: pygame.Surface
+    --
+    +rect(): pygame.Rect
+    +dibujar(pantalla: pygame.Surface)
+    +mover()
 }
 
-class enemigo{
-    -nombre
-    -puntos_de _salud
-    -habilidad
-    -tipo
+' ===========================
+'       SUBCLASES
+' ===========================
 
-    +morir()
-    +esquivar()
-    +usarhabilidad()
-    
+class Jugador {
+    +mover(dx: int, dy: int, ancho_pantalla: int, alto_pantalla: int)
 }
 
+class Enemigo {
+    +mover(ancho_pantalla: int, alto_pantalla: int)
+}
 
-Personaje <|-- jugador
-Personaje <|-- enemigo
+class Proyectil {
+    +mover()
+}
+
+Entidad <|-- Jugador
+Entidad <|-- Enemigo
+Entidad <|-- Proyectil
 
 
-@enduml
+' ===========================
+'          MODELO
+' ===========================
+
+class ModeloJuego {
+    +ancho: int
+    +alto: int
+    +jugador: Jugador
+    +enemigos: List<Enemigo>
+    +proyectiles: List<Proyectil>
+    +puntaje: int
+    +game_over: bool
+    +escenarios: List<str>
+    +escenario_index: int
+    --
+    +disparar()
+    +cambiar_escenario()
+    +actualizar()
+    +reiniciar()
+}
+
+ModeloJuego "1" *-- "1" Jugador
+ModeloJuego "1" *-- "many" Enemigo
+ModeloJuego "1" *-- "many" Proyectil
+
+
+' ===========================
+'          VISTA
+' ===========================
+
+class VistaJuego {
+    +pantalla: pygame.Surface
+    +fuente: pygame.font
+    +fondos: Dict
+    +img_jugador: pygame.Surface
+    +img_enemigo: pygame.Surface
+    --
+    +dibujar()
+}
+
+VistaJuego --> ControladorJuego : usa
+ControladorJuego --> ModeloJuego : usa
+
+' ===========================
+'        CONTROLADOR
+' ===========================
+
+class ControladorJuego
