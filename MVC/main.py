@@ -13,5 +13,5 @@ def main(usuario=None):
 if __name__ == "__main__":
     usuario = None
     if len(sys.argv) > 1:
-        usuario = sys.argv[1]  # recibe el usuario desde Flet si se quiere
+        usuario = sys.argv[1]  
     main(usuario)

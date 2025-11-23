@@ -3,6 +3,8 @@ import pygame
 class Vista:
     def __init__(self, modelo):
         self.modelo = modelo
+        # fuente base (puedes cambiar)
+        self.fuente = pygame.font.Font(None, 30)
 
     def dibujar(self):
         pantalla = self.modelo.pantalla
@@ -46,4 +48,16 @@ class Vista:
         fuente = pygame.font.Font(None, 60)
         texto = fuente.render("GAME OVER", True, (255,0,0))
         pantalla.blit(texto, (self.modelo.ancho//2 - 150, self.modelo.alto//2 - 30))
+
+        # Mostrar puntaje actual y highscore si hay usuario
+        fuente2 = pygame.font.Font(None, 30)
+        texto_puntaje = fuente2.render(f"Puntaje: {self.modelo.puntaje}", True, (255,255,255))
+        pantalla.blit(texto_puntaje, (self.modelo.ancho//2 - texto_puntaje.get_width()//2, self.modelo.alto//2 + 40))
+
+        usuario = self.modelo.usuario_actual or getattr(self.modelo.login, "usuario_logueado", "") or getattr(self.modelo.login, "usuario_ingresado", "")
+        if usuario:
+            high = self.modelo.puntaje_dao.obtener_puntaje(usuario)
+            texto_high = fuente2.render(f"Mejor puntaje ({usuario}): {high}", True, (255,255,0))
+            pantalla.blit(texto_high, (self.modelo.ancho//2 - texto_high.get_width()//2, self.modelo.alto//2 + 80))
+
         pygame.display.flip()

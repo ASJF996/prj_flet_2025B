@@ -7,7 +7,9 @@ class Controlador:
         self.pantalla = pantalla
         self.modelo = ModeloJuego(pantalla)
         if usuario:
+            self.modelo.usuario_actual = usuario
             self.modelo.login.login_exitoso = True
+            self.modelo.login.usuario_logueado = usuario
         self.vista = Vista(self.modelo)
 
     def iniciar(self):
@@ -20,12 +22,19 @@ class Controlador:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     corriendo = False
+
                 elif evento.type == pygame.KEYDOWN:
+
+                    if evento.key == pygame.K_ESCAPE:
+                        corriendo = False
+
                     if not self.modelo.login.login_exitoso:
                         self.modelo.login.procesar_tecla(evento.key)
+
                     else:
                         if evento.key == pygame.K_SPACE:
                             self.modelo.disparar()
+
                         elif evento.key == pygame.K_r and self.modelo.game_over:
                             self.modelo.reiniciar()
 

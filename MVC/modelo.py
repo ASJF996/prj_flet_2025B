@@ -3,8 +3,8 @@ import random
 import time
 import os
 from dao import UsuarioDAO
+from puntaje_dao import PuntajeDAO
 from typing import Generic, TypeVar, Optional
-
 
 T = TypeVar('T')  # Tipo genérico para la imagen u otro dato asociado
 
@@ -73,6 +73,7 @@ class Login:
         self.contraseña_ingresada = ""
         self.escribiendo_usuario = True
         self.login_exitoso = False
+        self.usuario_logueado = ""  # nombre del usuario que quedó logueado
 
     def registrar_usuario(self, usuario, contraseña):
         try:
@@ -95,6 +96,7 @@ class Login:
             else:
                 if self.dao.verificar_usuario(self.usuario_ingresado, self.contraseña_ingresada):
                     self.login_exitoso = True
+                    self.usuario_logueado = self.usuario_ingresado
                 else:
                     self.usuario_ingresado = ""
                     self.contraseña_ingresada = ""
@@ -114,13 +116,30 @@ class ModeloJuego:
         self.alto = alto
         self.dao = UsuarioDAO()
         self.login = Login(self.dao)
+
+        # DAO de puntajes (archivo puntajes.json)
+        self.puntaje_dao = PuntajeDAO(archivo="puntajes.json")
+        self.usuario_actual = None  # se setea desde controlador/main si se desea
+
         self.escenarios = ["andromeda.jpg","planetas.jpg","saturno.jpg"]
         self.nivel_actual = 0
         self.fondos = {}
         for fondo in self.escenarios:
             path = os.path.join("assets", fondo)
-            self.fondos[fondo] = pygame.image.load(path).convert()
-        jugador_img = pygame.image.load(os.path.join("assets","jugador.png")).convert_alpha()
+            try:
+                self.fondos[fondo] = pygame.image.load(path).convert()
+            except Exception:
+                # fallback si faltan assets
+                s = pygame.Surface((ancho, alto))
+                s.fill((0,0,0))
+                self.fondos[fondo] = s
+
+        try:
+            jugador_img = pygame.image.load(os.path.join("assets","jugador.png")).convert_alpha()
+        except Exception:
+            jugador_img = pygame.Surface((40, 40), pygame.SRCALPHA)
+            pygame.draw.polygon(jugador_img, (0,255,0), [(0,40),(20,0),(40,40)])
+
         self.jugador = Jugador(ancho//2, alto-60, jugador_img)
         self.enemigos = []
         self.proyectiles = []
@@ -130,8 +149,15 @@ class ModeloJuego:
         self.game_over = False
         self.puntaje = 0
 
+        # flag para guardar puntaje solo 1 vez
+        self.score_saved = False
+
     def crear_enemigo(self):
-        enemigo_img = pygame.image.load(os.path.join("assets","enemigo.png")).convert_alpha()
+        try:
+            enemigo_img = pygame.image.load(os.path.join("assets","enemigo.png")).convert_alpha()
+        except Exception:
+            enemigo_img = pygame.Surface((40, 30), pygame.SRCALPHA)
+            enemigo_img.fill((255,0,0))
         velocidad = 2 + self.nivel_actual
         x = random.randint(0, self.ancho-40)
         y = random.randint(-100, -40)
@@ -174,7 +200,8 @@ class ModeloJuego:
             for e in self.enemigos[:]:
                 if p.rect().colliderect(e.rect()):
                     self.enemigos.remove(e)
-                    self.proyectiles.remove(p)
+                    if p in self.proyectiles:
+                        self.proyectiles.remove(p)
                     self.puntaje += 10
                     break
 
@@ -190,7 +217,8 @@ class ModeloJuego:
         for p in self.proyectiles_enemigos[:]:
             if self.jugador.rect().colliderect(p.rect()):
                 self.jugador.vidas -=1
-                self.proyectiles_enemigos.remove(p)
+                if p in self.proyectiles_enemigos:
+                    self.proyectiles_enemigos.remove(p)
                 if self.jugador.vidas <=0:
                     self.game_over = True
 
@@ -198,6 +226,16 @@ class ModeloJuego:
         if self.puntaje >= (self.nivel_actual+1)*50:
             self.nivel_actual = min(self.nivel_actual+1,len(self.escenarios)-1)
             self.spawn_delay = max(0.3,self.spawn_delay-0.2)
+
+        # Si terminó el juego, guardar puntaje (solo una vez)
+        if self.game_over and not self.score_saved:
+            usuario = self.usuario_actual or getattr(self.login, "usuario_logueado", "") or getattr(self.login, "usuario_ingresado", "")
+            try:
+                if usuario:
+                    self.puntaje_dao.actualizar_puntaje(usuario, self.puntaje)
+            except Exception as e:
+                print("Error guardando puntaje:", e)
+            self.score_saved = True
 
     def reiniciar(self):
         self.jugador.vidas = 3
@@ -210,3 +248,4 @@ class ModeloJuego:
         self.proyectiles_enemigos = []
         self.spawn_delay = 1.0
         self.game_over = False
+        self.score_saved = False
