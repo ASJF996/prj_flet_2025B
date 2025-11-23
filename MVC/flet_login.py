@@ -5,19 +5,17 @@ from dao import UsuarioDAO
 def generar_login(page: ft.Page):
     dao = UsuarioDAO()
 
-    # Configuración general de la página
     page.title = "Login - Juego MVC"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.padding = 20
     page.bgcolor = "#E3F2FD"
 
-    # Campos de usuario y contraseña
     username = ft.TextField(label="Usuario", width=300, autofocus=True)
     password = ft.TextField(label="Contraseña", password=True, can_reveal_password=True, width=300)
     mensaje = ft.Text(value="", color="red", size=16)
 
-    # Función para registrar usuario
+    
     def registrar(e):
         try:
             dao.agregar_usuario(username.value, password.value)
@@ -28,14 +26,13 @@ def generar_login(page: ft.Page):
             mensaje.color = "red"
         page.update()
 
-    # Función para iniciar el juego
+   
     def iniciar_juego(e):
         if dao.verificar_usuario(username.value, password.value):
             mensaje.value = f"Bienvenido, {username.value}"
             mensaje.color = "green"
             page.update()
             page.window_minimized = True
-            # Abrir Pygame pasando el usuario
             subprocess.Popen(["python", "main.py", username.value])
         else:
             mensaje.value = "Usuario o contraseña incorrectos"

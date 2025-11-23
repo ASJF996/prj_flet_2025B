@@ -38,7 +38,7 @@ Este fue un factor clave en el desarrollo, permitió separar de manera clara las
 ### Guardado de usuarios y login
 Para esto se utilizó una interfaz de Flet, desde la que se pueda registrar un usuario o iniciar sesión según sea el caso.
 ### Persistecia de datos
-Para esto se implemento un archivo json para guardar los registros del sistema de login.
+Para esto se implemento un archivo json para guardar los registros del sistema de login, ademas del puntaje obtenido por un usuario y el nombre de usuario.
 
 ## Patrones de diseño aplicados
 Se emplearon únicamente dos patrones de diseño: MVC y DAO. Que tuvieron una destacada influencia en la estructuración y lógica del código.
