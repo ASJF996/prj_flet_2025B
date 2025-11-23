@@ -1,6 +1,7 @@
 import pygame
-from modelo import ModeloJuego
-from vista import Vista
+from Modelos.Modelojuego import ModeloJuego
+from Vista.vista import Vista
+from Modelos.modelologin import Login 
 
 class Controlador:
     def __init__(self, pantalla, usuario=None):

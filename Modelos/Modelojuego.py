@@ -1,113 +1,14 @@
+
 import pygame
 import random
 import time
 import os
-from dao import UsuarioDAO
-from puntaje_dao import PuntajeDAO
-from typing import Generic, TypeVar, Optional
-
-T = TypeVar('T')  # Tipo genérico para la imagen u otro dato asociado
-
-class Entidad(Generic[T]):
-    def __init__(self, x: int, y: int, ancho: int, alto: int, velocidad: int = 0, imagen: Optional[T] = None):
-        self.x = x
-        self.y = y
-        self.ancho = ancho
-        self.alto = alto
-        self.velocidad = velocidad
-        self.imagen: Optional[T] = imagen
-
-    def rect(self) -> pygame.Rect:
-        return pygame.Rect(self.x, self.y, self.ancho, self.alto)
-
-    def dibujar(self, pantalla):
-        if isinstance(self.imagen, pygame.Surface):
-            pantalla.blit(self.imagen, (self.x, self.y))
-        else:
-            pygame.draw.rect(pantalla, (255, 0, 0), self.rect())
-
-    def mover(self, dx: int = 0, dy: int = 0, ancho_pantalla: int = 800, alto_pantalla: int = 600):
-        self.x += dx * self.velocidad
-        self.y += dy * self.velocidad
-        self.x = max(0, min(self.x, ancho_pantalla - self.ancho))
-        self.y = max(0, min(self.y, alto_pantalla - self.alto))
-
-class Jugador(Entidad):
-    def __init__(self, x, y, imagen):
-        super().__init__(x, y, imagen.get_width(), imagen.get_height(), velocidad=5, imagen=imagen)
-        self.vidas = 3
-
-class Enemigo:
-    def __init__(self, x, y, imagen, velocidad_y=3):
-        self.x = x
-        self.y = y
-        self.imagen = imagen
-        self.ancho = imagen.get_width()
-        self.alto = imagen.get_height()
-        self.velocidad_y = velocidad_y
-
-    def mover(self):
-        self.y += self.velocidad_y
-
-    def dibujar(self, pantalla):
-        pantalla.blit(self.imagen, (self.x, self.y))
-
-    def rect(self):
-        return pygame.Rect(self.x, self.y, self.ancho, self.alto)
-
-class Proyectil(Entidad):
-    def __init__(self, x, y, velocidad=8, color=(255,255,0)):
-        super().__init__(x, y, 5, 10, velocidad=velocidad)
-        self.color = color
-
-    def mover(self, hacia_arriba=True):
-        self.y -= self.velocidad if hacia_arriba else -self.velocidad
-
-    def dibujar(self, pantalla):
-        pygame.draw.rect(pantalla, self.color, self.rect())
-
-class Login:
-    def __init__(self, dao: UsuarioDAO):
-        self.dao = dao
-        self.usuario_ingresado = ""
-        self.contraseña_ingresada = ""
-        self.escribiendo_usuario = True
-        self.login_exitoso = False
-        self.usuario_logueado = ""  # nombre del usuario que quedó logueado
-
-    def registrar_usuario(self, usuario, contraseña):
-        try:
-            self.dao.agregar_usuario(usuario, contraseña)
-            return True
-        except ValueError:
-            return False
-
-    def procesar_tecla(self, tecla):
-        if self.login_exitoso:
-            return
-        if tecla == pygame.K_BACKSPACE:
-            if self.escribiendo_usuario:
-                self.usuario_ingresado = self.usuario_ingresado[:-1]
-            else:
-                self.contraseña_ingresada = self.contraseña_ingresada[:-1]
-        elif tecla == pygame.K_RETURN:
-            if self.escribiendo_usuario:
-                self.escribiendo_usuario = False
-            else:
-                if self.dao.verificar_usuario(self.usuario_ingresado, self.contraseña_ingresada):
-                    self.login_exitoso = True
-                    self.usuario_logueado = self.usuario_ingresado
-                else:
-                    self.usuario_ingresado = ""
-                    self.contraseña_ingresada = ""
-                    self.escribiendo_usuario = True
-        else:
-            letra = pygame.key.name(tecla)
-            if len(letra) == 1:
-                if self.escribiendo_usuario:
-                    self.usuario_ingresado += letra
-                else:
-                    self.contraseña_ingresada += letra
+from Modelos.usuarios_dao import UsuarioDAO
+from Modelos.puntaje_dao import PuntajeDAO
+from Modelos.modelologin import Login
+from Modelos.Modeloentidades import Jugador
+from Modelos.Modeloentidades import Enemigo
+from Modelos.Modeloentidades import Proyectil
 
 class ModeloJuego:
     def __init__(self, pantalla, ancho=800, alto=600):
@@ -121,21 +22,24 @@ class ModeloJuego:
         self.puntaje_dao = PuntajeDAO(archivo="puntajes.json")
         self.usuario_actual = None  # se setea desde controlador/main si se desea
 
-        self.escenarios = ["andromeda.jpg","planetas.jpg","saturno.jpg"]
+        self.escenarios = ["andromeda.jpg", "planetas.jpg", "saturno.jpg"]
         self.nivel_actual = 0
         self.fondos = {}
+
         for fondo in self.escenarios:
-            path = os.path.join("assets", fondo)
+            ruta = os.path.join(os.path.dirname(__file__),  "..", "Vista", "assets", fondo)
             try:
-                self.fondos[fondo] = pygame.image.load(path).convert()
+                self.fondos[fondo] = pygame.image.load(ruta).convert()
             except Exception:
-                # fallback si faltan assets
+                    # fallback si faltan assets
                 s = pygame.Surface((ancho, alto))
-                s.fill((0,0,0))
+                s.fill((0, 0, 0))
                 self.fondos[fondo] = s
 
+        ruta_jugador = os.path.join(os.path.dirname(__file__), "..", "Vista", "assets", "jugador.png")
+
         try:
-            jugador_img = pygame.image.load(os.path.join("assets","jugador.png")).convert_alpha()
+            jugador_img = pygame.image.load(ruta_jugador).convert_alpha()
         except Exception:
             jugador_img = pygame.Surface((40, 40), pygame.SRCALPHA)
             pygame.draw.polygon(jugador_img, (0,255,0), [(0,40),(20,0),(40,40)])
@@ -153,8 +57,9 @@ class ModeloJuego:
         self.score_saved = False
 
     def crear_enemigo(self):
+        ruta_enemigo = os.path.join(os.path.dirname(__file__),  "..", "Vista", "assets", "enemigo.png")
         try:
-            enemigo_img = pygame.image.load(os.path.join("assets","enemigo.png")).convert_alpha()
+            enemigo_img = pygame.image.load(os.path.join(ruta_enemigo)).convert_alpha()
         except Exception:
             enemigo_img = pygame.Surface((40, 30), pygame.SRCALPHA)
             enemigo_img.fill((255,0,0))

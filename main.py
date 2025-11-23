@@ -1,5 +1,5 @@
 import pygame
-from controlador import Controlador
+from Controlador.controlador import Controlador
 import sys
 
 def main(usuario=None):

@@ -1,6 +1,7 @@
 import flet as ft
 import subprocess
-from dao import UsuarioDAO
+import os
+from Modelos.usuarios_dao import UsuarioDAO
 
 def generar_login(page: ft.Page):
     dao = UsuarioDAO()
@@ -15,7 +16,9 @@ def generar_login(page: ft.Page):
     password = ft.TextField(label="Contraseña", password=True, can_reveal_password=True, width=300)
     mensaje = ft.Text(value="", color="red", size=16)
 
-    
+   
+    ruta_main = os.path.join(os.path.dirname(__file__), "main.py")
+
     def registrar(e):
         try:
             dao.agregar_usuario(username.value, password.value)
@@ -26,14 +29,17 @@ def generar_login(page: ft.Page):
             mensaje.color = "red"
         page.update()
 
-   
     def iniciar_juego(e):
         if dao.verificar_usuario(username.value, password.value):
             mensaje.value = f"Bienvenido, {username.value}"
             mensaje.color = "green"
             page.update()
+
+            # Minimizamos la ventana
             page.window_minimized = True
-            subprocess.Popen(["python", "main.py", username.value])
+
+            # Ejecutamos main.py con subprocess
+            subprocess.Popen(["python", ruta_main, username.value])
         else:
             mensaje.value = "Usuario o contraseña incorrectos"
             mensaje.color = "red"
@@ -46,6 +52,7 @@ def generar_login(page: ft.Page):
         color="white",
         width=120
     )
+
     register_button = ft.ElevatedButton(
         "Registrar",
         on_click=registrar,
