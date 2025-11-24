@@ -59,6 +59,12 @@ Este patrón se aplico únicamente en la interfaz de usuario, concretamente para
 [comentario]: # Aquí voy a poner una captura del script dao.py
 >>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
 
+## Diagramación del proyecto
+En esta sección se  muestran todos la diagramación implementada antes de empezar a escribir código. Se modelan las clases y los casos de uso.
+### Diagrama de clases
+
+### Diagrama de casos de uso
+
 ## Estructutura del proyecto
 Esta sección es de crucial importancia, ya que se va a explicar detalladamente cada componente del proyecto, los assets, el archivo json, pero especialmente se discurrirá sobre el funcionamiento de los scripts, cómo se comunican entre ellos y el funcionamiento de todo el sistema.
 [comentario]: # Aquí voy a poner una captura de pantalla de la estructura del sistema: la identación de las carpetas y los scripts.
@@ -189,10 +195,17 @@ Y la interfaz del proyecto se visualiza de la siguiente manera:
 [comentario]: # Aquí voy a poner una captura de pantalla de la interfaz.
 ### usuarios.json
 Como se mencionó anteriormente, este archivo sirve como almacén de los usuarios, tiene la única función de guardar los registros; pues recordar que todo el código para manipular la información de los mismos se encuentra en dao.py.
-Se muestra a continuación el archivo:
+Se muestra a continuación el archivo json con nuestros registros de usuario:
 ```
+{
+    "nuevo": "123",
+    "sg1": "222",
+    "nuevo2": "123",
+    "diego": "gorda"
+}
 ```
 ### modelo.py
+
 
 ### vista.py
 Este script se encarga única y exclusivamente de la representación visual del juego, renderiza los elementos del juego, el HUD y las pantallas de estado. 
