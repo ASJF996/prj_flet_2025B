@@ -59,12 +59,6 @@ Este patrón se aplico únicamente en la interfaz de usuario, concretamente para
 [comentario]: # Aquí voy a poner una captura del script dao.py
 >>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
 
-## Diagramación del proyecto
-En esta sección se  muestran todos la diagramación implementada antes de empezar a escribir código. Se modelan las clases y los casos de uso.
-### Diagrama de clases
-
-### Diagrama de casos de uso
-
 ## Estructutura del proyecto
 Esta sección es de crucial importancia, ya que se va a explicar detalladamente cada componente del proyecto, los assets, el archivo json, pero especialmente se discurrirá sobre el funcionamiento de los scripts, cómo se comunican entre ellos y el funcionamiento de todo el sistema.
 [comentario]: # Aquí voy a poner una captura de pantalla de la estructura del sistema: la identación de las carpetas y los scripts.
@@ -195,18 +189,47 @@ Y la interfaz del proyecto se visualiza de la siguiente manera:
 [comentario]: # Aquí voy a poner una captura de pantalla de la interfaz.
 ### usuarios.json
 Como se mencionó anteriormente, este archivo sirve como almacén de los usuarios, tiene la única función de guardar los registros; pues recordar que todo el código para manipular la información de los mismos se encuentra en dao.py.
-Se muestra a continuación el archivo json con nuestros registros de usuario:
+Se muestra a continuación el archivo:
 ```
-{
-    "nuevo": "123",
-    "sg1": "222",
-    "nuevo2": "123",
-    "diego": "gorda"
-}
 ```
-### modelo.py
+### Modelos
 
+#### Modelojuego.py
+En la carpeta modelos se agregaron los modelos para diferetes funciones
+El archivo Modelojuego.py es una parte escencial en el desarrollo del proyecto, en el se encuentra toda la logica del Juego, en esta parte del MVC se programó todas las reglas del juego. y las funciones que realizan las entidades dentro del proyecto, en esta parte del codigo tenemos todas las operaciones que se crean en el juego. 
+Primero se importan todas las librerias necesarias, en este caso, se importó pygame,random,time,os y de los archivos creados se importó USUARIODAO del archivo dao.py y de puntaje_dao se importo PuntajeDAO, tambien de Modelosentidades se importaron jugador,proyectil y enemigo.
+Dentro de nuestra clase Modelojuego tenemos un metodo especial __init__ que tiene los atributos de pantalla, este nos sirve para el login al juego, dentro del def, declaramos publicos los atributos.
+En un ciclo  agregamos los fondos o escenarios asignando la ruta de donde se encuentran las imagenes en nuestro proyecto, y mediante el metodo Surface de pygame le damos el formato de fondo.
+luego se creo el metodo crear_enemigo, que crea la imagen del enemigo y mediante randit posiciona la imagen en diferentes  lugares de la pantalla, mediante un excep busca la ruta de la imagen que se le da si no se encuentra obtiene una de pygame.
 
+Despues se agregaron metodos disparar para el jugador principal y dosparar_enemigo para la entidad enemigo.
+
+tambien se creo un metodo para actualizar, que genera entidades enemigo constantemente.
+
+Mediante ciclos se desarrollaron las funciones sobre los proyectiles, para que estos puedan colisionar con las entidades y restar vidas en  caso del jugar, para el caso del enemigo desaparece el enemigo.
+Dentro de una condicion se estable que si el puntaje llega a 50 se pase al siguiente nivel y asi cada 50 puntos se sube un nivel hasta el nivel 3.
+tambien en una condición se agrego una escepción para guardar el puntaje del usuario.
+Tambien se agrego un metodo que al reiniciar el juego mande los parametros tal como se declaraban inicialmente.
+
+### Modeloentidades.py
+Se creó una clase Entidad del tipo generico donde los atributos del objeto son ancho, alto, velocidad, posiciones x,y y.
+Tambien se creó la clase jugador, que hereda de La clase generica Entidad los atributos, ademas se añade un atributo de objeto llamado vidas, que contabiliza las vidas que tiene el usuario.La entidad enemigo, hereda tambien de la clase Entidad los atributos y solo hereda el metodo mover. Otra clase llamada proyectil se creó bajo el mismo principio en el que la clase hereda de entidad los atributos y ésta solo hereda el metodo mover y dibujar
+#### Modelologin.py
+
+Se creo una clase Login para ingresar al juego, en el constructor se definieron publicos los atributos y se paso el parametro UsuarioDAO desde usuarios.dao.
+
+Este modelo contiene metodos para registrar, el cual recibe parametros usuario y contraseña y los agrega al metodo agregar usuario del archivo dao para usuarios
+
+Se creo otro metodo para verificar si al intentar iniciar sesion, que existan los valores de usuario y contraseña, y muestra mensajes de bienvenido o de usuario no registado, si es que existe o no los valores.
+### Puntaje_dao.py
+Se creo un modelo para guardar el puntaje del usuario.
+En este archivo se creo una clase PuntajeDAO que inicializa un archivo  llamado puntajes.json, en caso de que no se encuntre dentro dl proyecto se cea con withopen .
+la clase contiene metodos para cargar los puntajes, guardar nuevos puntajes, actualizar puntajes, y obtener puntajes por usuario y totales.
+la actualizacion de puntajes se hace para guardar puntajes mayores, que el anterior registrado. obtener puntaje devuelve el puntaje, este metodo se utiliza en el proyecto para mostrar en el juego cual es elpuntaje mas alto del usuario que se ha registrado.
+
+#### usuarios_dao.py
+Este arhivo contienen una clase UsuarioDAO que inicializa un archivo json usuarios.json,en caso de que no exista lo crea y si existe lo abre.
+esta clase contiene metodos para cargar usuarios, registrar nuevos usuarios, guardar y verificar que existan, estos metodos son escenciales al momento de logearse en el juego. Cuando se intenta agregar un usuario se verifica si ya existe , en dado caso muestra un mensaje de alerta, para verificar se llama entre metodos a cargar usuarios, que lee el archivo json de usuarios, y carga los datos.
 ### vista.py
 Este script se encarga única y exclusivamente de la representación visual del juego, renderiza los elementos del juego, el HUD y las pantallas de estado. 
 Se muestra a continuación el código:
