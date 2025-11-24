@@ -4,6 +4,7 @@ El objetivo general del juego es básicamente obtener el mayor puntaje posible, 
 El videojuego está desarrollado completamente en Python, con tecnologías inherentes al mismo, estas tecnologías son la librería pygame y Flet, en las que se ahondará a continuación:
 ### pygame
 Es una librería gratuita, multiplataforma y de código abierto para crear aplicaciones multimedia de manera sencilla. Y se eligió para este proyecto porque es una excelente opción para el desarrollo de videojuegos en 2D, lo cúal es el caso.
+
 ![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/a9d0168e0be73266a90e28e39e186165594b4737/imagenes_doc/pygame_logo.png)
 
 
@@ -31,13 +32,16 @@ Aquí se muestran los diagramas tanto de clase como de casos de uso que se bosqu
 
 ## Características principales del proyecto
 Este proyecto posee características que vale la pena mencionar en aspectos tanto de funcionalidad, gestión, diseño, lógica, etc., que se presentan a continuación:
-### Sistema de autenticación
-
-### Gestión de usuarios
-
-### Sistema de puntuaciones
-
-### API y endpoints
+### * Sistema de autenticación
+Posee un sistema de login **flet_login.py** que lanza el juego principal **main.py** pasando al usuario como argumento.
+### * Utilización de clases genéricas
+Dentro de la parte del modelo existe un uso notorio e importante de clase genéricas, concretamente dentro del archivo **Modeloentidades.py** donde existe una clase genérica llamada **Entidad**
+### * Persistencia de datos
+Utiliza archivos json para almacenar usuarios con sus respectivas contraseñas y puntuaciones. Y aquí el DAO (Data Access Object) se encarga de abstraer el acceso a estos archivos.
+### * Control de estados bien definido
+El juego posee tres estados claros y bien definidos: login, gameplay y game over. Y el controlador se encarga de manejar la transición entre estados.
+### * HUD (Head Up Display)
+Durante el gameplay se muestra en la parte superior izquierda información en tiempo real. Se muestran tus vidas, tu puntaje y el nivel actual.
 
 ## Estructura del proyecto
 El proyecto se compone de los siguientes archivos, scripts, imágenes, etc. Que en su conjunto crean toda la funcionalidad del videojuego. Se muestra una breve descripción de cada uno:
@@ -152,7 +156,13 @@ class Vista:
 ```
 #### assets/
 Esta carpeta contiene todos lo elementos multimedia del juego, en este caso solo contiene imágenes porque no se implementó sonido o video.
-![image alt]()
+
+
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/ea1236a1ba5a50dfb15561530efb8309bfc00a91/imagenes_doc/assets.png)
+
+
+
+
 ### Controlador
 Es un intermediario entre el modelo y la vista, mejor dicho es quién coordina ambos. No contiene lógica de negocio ni lógica visual.
 Se compone únicamente del siguiente script:
@@ -219,4 +229,8 @@ class Controlador:
 
             reloj.tick(60)
 ```
+## Flujo del programa
 
+
+## Ejecución del Programa
+Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos
