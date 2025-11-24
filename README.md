@@ -4,7 +4,7 @@ El objetivo general del juego es básicamente obtener el mayor puntaje posible, 
 El videojuego está desarrollado completamente en Python, con tecnologías inherentes al mismo, estas tecnologías son la librería pygame y Flet, en las que se ahondará a continuación:
 ### pygame
 Es una librería gratuita, multiplataforma y de código abierto para crear aplicaciones multimedia de manera sencilla. Y se eligió para este proyecto porque es una excelente opción para el desarrollo de videojuegos en 2D, lo cúal es el caso.
-
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/a9d0168e0be73266a90e28e39e186165594b4737/imagenes_doc/pygame_logo.png)
 Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el siguiente comando:
 ```
 pip install pygame
