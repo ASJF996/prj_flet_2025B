@@ -1,0 +1,52 @@
+@startuml
+title Diagrama de Secuencia - Login → Juego → Game Over
+
+actor Usuario
+
+participant "FletLogin" as F
+participant "usuarios_dao" as UDAO
+participant "puntaje_dao" as PDAO
+participant "main.py" as MAIN
+participant "Controlador" as C
+participant "Modelojuego" as M
+participant "VistaPyGame" as V
+
+Usuario -> F: Abrir aplicación
+F -> Usuario: Mostrar formulario de login
+
+Usuario -> F: Ingresa usuario/contraseña
+F -> UDAO: validar(usuario, contraseña)
+UDAO --> F: resultado validación
+
+alt Credenciales válidas
+    F -> MAIN: Ejecutar main.py(usuario)
+else Error
+    F -> Usuario: Mostrar mensaje de error
+end
+
+MAIN -> C: Crear instancia del Controlador(usuario)
+C -> M: Inicializar modelo del juego
+C -> V: Crear vista PyGame
+
+loop Bucle principal (60 FPS)
+    C -> M: actualizar()
+    M --> C: estado actualizado
+
+    C -> V: renderizar(modelo)
+    V --> C: frame dibujado
+
+    C -> C: procesar_eventos()
+end
+
+opt Game Over
+    C -> M: solicitar puntaje final
+    M -> PDAO: actualizar_puntaje(usuario, puntaje)
+    PDAO --> M: confirmación
+
+    C -> V: mostrar pantalla Game Over
+end
+
+Usuario -> C: Presiona "R" para reiniciar
+C -> M: reiniciar()
+
+@enduml
