@@ -22,7 +22,7 @@ Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el 
 ```
 pip install flet
 ```
-<<<<<<< HEAD
+
 ## Características principales
 A continuación se muestran carácterísticas destacables del proyecto.
 ### Arquitectura Modelo Vista Controlador
@@ -41,7 +41,7 @@ La vista se encarga exclusivamente de representar visualmente el juego, solo rec
 Y por último el controlador se ocupa de manejar el input de usuario y actualizar los datos del modelo en consecuencia, así como de coordinar la actualización de la vista.
 [comentario]: # Aquí voy a poner una captura de pantalla en la que se vean los scripts, mas no voy a mostrar el código por ahora
 ### (DAO) Data Access Object
-<<<<<<< HEAD
+
 Se desarrollaron dos archivos.py para el DAO, uno se utilizo para guardar los usuarios, mediante un nombre de usuario y una contraseña, todos estos se guardan mediante diccionarios en un archivo.json en la misma carpeta en la que se encuentran los archivos.py
 
 el otro archivo que se creo en el proyecto es un DAO que guarda los puntajes mas altos con el nombre de usuario, y se actualizan cada vez que el jugador alcanza un nuevo puntaje mayor al registrado previamente 
@@ -150,71 +150,8 @@ En esta carpeta se encuentran los componentes visuales del proyecto, en otras pa
 Se compone de los suguientes elementos:
 #### vista.py
 Este script se encarga de renderizar los gráficos, mostrar la información (de manera visual obviamente) del modelo, la pantalla de visualización frontal y, por supuesto de gestionar los assets (elementos multimedia).
-```
-import pygame
+Sen encarga las pantallas y los elementos graficos que existen en ella, se van actualizando con ciclos, los enemigos, los proyectiles el puntaje, todo se va actualizando y vista se encarga de mostrar esas actualizaciones
 
-class Vista:
-    def __init__(self, modelo):
-        self.modelo = modelo
-        # fuente base (puedes cambiar)
-        self.fuente = pygame.font.Font(None, 30)
-
-    def dibujar(self):
-        pantalla = self.modelo.pantalla
-        if self.modelo.login.login_exitoso:
-            # Fondo
-            fondo = self.modelo.fondos[self.modelo.escenarios[self.modelo.nivel_actual]]
-            pantalla.blit(fondo, (0,0))
-            # Jugador
-            self.modelo.jugador.dibujar(pantalla)
-            # Enemigos
-            for e in self.modelo.enemigos:
-                e.dibujar(pantalla)
-            # Proyectiles
-            for p in self.modelo.proyectiles:
-                p.dibujar(pantalla)
-            # Proyectiles enemigos
-            for p in self.modelo.proyectiles_enemigos:
-                p.dibujar(pantalla)
-            # HUD
-            fuente = pygame.font.Font(None, 30)
-            texto = fuente.render(f"Vidas: {self.modelo.jugador.vidas}  Puntaje: {self.modelo.puntaje}  Nivel: {self.modelo.nivel_actual+1}", True, (255,255,255))
-            pantalla.blit(texto, (10,10))
-        else:
-            # Pantalla de login
-            pantalla.fill((0,0,0))
-            fuente = pygame.font.Font(None, 40)
-            titulo = fuente.render("LOGIN", True, (255,255,255))
-            pantalla.blit(titulo, (self.modelo.ancho//2 - 50, 100))
-            fuente_input = pygame.font.Font(None, 30)
-            user = fuente_input.render(f"Usuario: {self.modelo.login.usuario_ingresado}", True, (255,255,255))
-            pantalla.blit(user, (self.modelo.ancho//2 - 100, 200))
-            contra = fuente_input.render(f"Contraseña: {'*'*len(self.modelo.login.contraseña_ingresada)}", True, (255,255,255))
-            pantalla.blit(contra, (self.modelo.ancho//2 - 100, 250))
-            instr = fuente_input.render("Presiona ENTER para cambiar campo / validar", True, (255,255,255))
-            pantalla.blit(instr, (self.modelo.ancho//2 - 200, 300))
-
-        pygame.display.flip()
-
-    def mostrar_game_over(self):
-        pantalla = self.modelo.pantalla
-        fuente = pygame.font.Font(None, 60)
-        texto = fuente.render("GAME OVER", True, (255,0,0))
-        pantalla.blit(texto, (self.modelo.ancho//2 - 150, self.modelo.alto//2 - 30))
-
-        # Mostrar puntaje actual y highscore si hay usuario
-        fuente2 = pygame.font.Font(None, 30)
-        texto_puntaje = fuente2.render(f"Puntaje: {self.modelo.puntaje}", True, (255,255,255))
-        pantalla.blit(texto_puntaje, (self.modelo.ancho//2 - texto_puntaje.get_width()//2, self.modelo.alto//2 + 40))
-
-        usuario = self.modelo.usuario_actual or getattr(self.modelo.login, "usuario_logueado", "") or getattr(self.modelo.login, "usuario_ingresado", "")
-        if usuario:
-            high = self.modelo.puntaje_dao.obtener_puntaje(usuario)
-            texto_high = fuente2.render(f"Mejor puntaje ({usuario}): {high}", True, (255,255,0))
-            pantalla.blit(texto_high, (self.modelo.ancho//2 - texto_high.get_width()//2, self.modelo.alto//2 + 80))
-
-        pygame.display.flip()
-```
 #### assets/
 Esta carpeta contiene todos lo elementos multimedia del juego, en este caso solo contiene imágenes porque no se implementó sonido o video.
 
@@ -229,72 +166,12 @@ Es un intermediario entre el modelo y la vista, mejor dicho es quién coordina a
 Se compone únicamente del siguiente script:
 #### controlador.py
 Este script se encarga de manejar los datos de entrada, controlar el flujo de la aplicación y controlar el bucle principal del juego.
-```
-import pygame
-from Modelos.Modelojuego import ModeloJuego
-from Vista.vista import Vista
-from Modelos.modelologin import Login 
-
-class Controlador:
-    def __init__(self, pantalla, usuario=None):
-        self.pantalla = pantalla
-        self.modelo = ModeloJuego(pantalla)
-        if usuario:
-            self.modelo.usuario_actual = usuario
-            self.modelo.login.login_exitoso = True
-            self.modelo.login.usuario_logueado = usuario
-        self.vista = Vista(self.modelo)
-
-    def iniciar(self):
-        reloj = pygame.time.Clock()
-        corriendo = True
-
-        while corriendo:
-            self.vista.dibujar()
-
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    corriendo = False
-
-                elif evento.type == pygame.KEYDOWN:
-
-                    if evento.key == pygame.K_ESCAPE:
-                        corriendo = False
-
-                    if not self.modelo.login.login_exitoso:
-                        self.modelo.login.procesar_tecla(evento.key)
-
-                    else:
-                        if evento.key == pygame.K_SPACE:
-                            self.modelo.disparar()
-
-                        elif evento.key == pygame.K_r and self.modelo.game_over:
-                            self.modelo.reiniciar()
-
-            if self.modelo.login.login_exitoso and not self.modelo.game_over:
-                teclas = pygame.key.get_pressed()
-                dx, dy = 0,0
-                if teclas[pygame.K_LEFT]:
-                    dx = -1
-                if teclas[pygame.K_RIGHT]:
-                    dx = 1
-                if teclas[pygame.K_UP]:
-                    dy = -1
-                if teclas[pygame.K_DOWN]:
-                    dy = 1
-                self.modelo.jugador.mover(dx, dy, self.modelo.ancho, self.modelo.alto)
-                self.modelo.actualizar()
-            
-            if self.modelo.game_over:
-                self.vista.mostrar_game_over()
-
-            reloj.tick(60)
-```
+Practicamente esta parte del programa se ocupa de recibir las entradas al programa hechas por el usuario, posteriormente se las manda al modelo y este  se encarga de procesar la logica, una vez realizada las acciones correspondientes,el controlador , se conecta con vista y le dice que deberia mostrar.
 ## Flujo del programa
 
 
 ## Ejecución del Programa
-Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos
+Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos.
 Aqui se muestra, como es necesario loguearse si el usuario ya se encuentra en el archivo json en su defecto se registra.
 ![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/main/imagenes_doc/login.png)
 
