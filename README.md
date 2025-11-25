@@ -297,3 +297,9 @@ class Controlador:
 Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos
 Aqui se muestra, como es necesario loguearse si el usuario ya se encuentra en el archivo json en su defecto se registra.
 ![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/main/imagenes_doc/login.png)
+
+El primer ecenario se muestra a continuacion
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/main/imagenes_doc/escenario1.png)
+
+En la siguiente imagen se muestra la interfaz del juego, cuando se ha perdigo la partida, se muestra el puntaje obtenido y el mayor puntaje que ha obtenido el usuario.
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/main/imagenes_doc/juego_puntaje.png)
