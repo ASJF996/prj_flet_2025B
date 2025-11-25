@@ -296,5 +296,4 @@ class Controlador:
 ## Ejecución del Programa
 Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos
 Aqui se muestra, como es necesario loguearse si el usuario ya se encuentra en el archivo json en su defecto se registra.
-![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/42d3b157e363725ac8cd763d621b56af475f0be7/imagenes_doc/login.png)
-
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/main/imagenes_doc/login.png)
