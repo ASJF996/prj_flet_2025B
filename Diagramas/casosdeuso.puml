@@ -1,34 +1,60 @@
 @startuml
-left to right direction
-actor Jugador as g
+title Casos de Uso - Space Shooter MVC
 
-package espacio {
-  usecase "disparar" as UC1
-  usecase "desplazarse" as UC2
-  usecase "morir" as UC3
-  usecase "empezar juego" as UC4
-  usecase "finalizar juego" as UC5
+actor "Usuario" as U
+
+rectangle "Sistema Space Shooter" {
+
+    ' ============================
+    '  CASOS DE USO LOGIN
+    ' ============================
+    usecase "Iniciar sesión" as UC_Login
+    usecase "Registrar usuario" as UC_Registro
+    usecase "Validar credenciales" as UC_Validar
+    usecase "Cargar usuario desde JSON" as UC_CargarUsuario
+
+    ' ============================
+    '  CASOS DE USO DEL JUEGO
+    ' ============================
+    usecase "Iniciar juego" as UC_IniciarJuego
+    usecase "Mover nave" as UC_Mover
+    usecase "Disparar" as UC_Disparar
+    usecase "Generar enemigos" as UC_Enemigos
+    usecase "Detectar colisiones" as UC_Colisiones
+    usecase "Actualizar HUD" as UC_HUD
+    usecase "Cambiar nivel" as UC_Nivel
+    usecase "Finalizar juego" as UC_GameOver
+
+    ' ============================
+    '  CASOS DE PUNTAJES
+    ' ============================
+    usecase "Cargar puntaje máximo" as UC_CargarPuntaje
+    usecase "Guardar puntaje" as UC_GuardarPuntaje
 }
-g --> UC4
-g --> UC1
-g --> UC2
-g --> UC3
-g --> UC5
-@enduml
 
-@startuml
-left to right direction
-actor Enemigo as g
+' ============================
+'     RELACIONES
+' ============================
 
-package espacio {
-  usecase "disparar" as UC1
-  usecase "morir" as UC2
-  usecase "desplazarse" as UC3
-  usecase "usar habilidad" as UC4
-}
-g --> UC1
-g --> UC2
-g --> UC3
-g --> UC4
+U --> UC_Login
+U --> UC_Registro
+U --> UC_Mover
+U --> UC_Disparar
+
+UC_Login --> UC_Validar
+UC_Login --> UC_CargarUsuario
+UC_Registro --> UC_CargarUsuario
+
+UC_IniciarJuego --> UC_Enemigos
+UC_IniciarJuego --> UC_HUD
+UC_IniciarJuego --> UC_CargarPuntaje
+
+UC_Enemigos --> UC_Colisiones
+UC_Disparar --> UC_Colisiones
+
+UC_Colisiones --> UC_CambiarNivel
+UC_Colisiones --> UC_GameOver
+
+UC_GameOver --> UC_GuardarPuntaje
 
 @enduml
