@@ -61,6 +61,7 @@ Este patrón se aplico únicamente en la interfaz de usuario, concretamente para
 
 ## Estructutura del proyecto
 Esta sección es de crucial importancia, ya que se va a explicar detalladamente cada componente del proyecto, los assets, el archivo json, pero especialmente se discurrirá sobre el funcionamiento de los scripts, cómo se comunican entre ellos y el funcionamiento de todo el sistema.
+
 [comentario]: # Aquí voy a poner una captura de pantalla de la estructura del sistema: la identación de las carpetas y los scripts.
 ### dao.py
 Se realizó este script exclusivamente para la implementación de patrón DAO. Se encarga de gestionar el acceso de los usuarios (se comunica con la interfaz Flet), aplica las operaciones CRUD comunicandose con el archivo json.
