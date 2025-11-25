@@ -17,7 +17,11 @@ pip install pygame
 Flet es un framework de Python que permite crear aplicaciones web, móviles y de escritorio de manera sencilla, usando la potencia de Flutter pero sin la necesidad de escribir código en Dart ni tener experiencia previa en el desarrollo de frontend.
 ![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/42d3b157e363725ac8cd763d621b56af475f0be7/imagenes_doc/flet_logo.png)
 
+Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el siguiente comando:
 
+```
+pip install flet
+```
 <<<<<<< HEAD
 ## Características principales
 A continuación se muestran carácterísticas destacables del proyecto.
@@ -54,11 +58,6 @@ Esta sección es de crucial importancia, ya que se va a explicar detalladamente 
 ### dao.py
 Se realizó este script exclusivamente para la implementación de patrón DAO. Se encarga de gestionar el acceso de los usuarios (se comunica con la interfaz Flet), aplica las operaciones CRUD comunicandose con el archivo json.
 
-Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el siguiente comando:
-
-```
-pip install flet
-```
 
 ## Diagramación del proyecto
 Aquí se muestran los diagramas tanto de clase como de casos de uso que se bosquejaron para el desarrollo de este proyecto.
