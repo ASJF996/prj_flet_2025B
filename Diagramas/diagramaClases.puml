@@ -1,89 +1,108 @@
 @startuml
+title Diagrama de Clases - Space Shooter MVC
 
-' ===========================
-'        CLASES BASE
-' ===========================
+' ================================
+'           PAQUETES
+' ================================
+package "Modelos" {
+    class Modelojuego {
+        - nivel_actual: int
+        - spawn_delay: float
+        - puntaje: int
+        - game_over: bool
+        - jugador: Jugador
+        - enemigos: list<Enemigo>
+        - proyectiles: list<Proyectil>
+        + actualizar()
+        + detectar_colisiones()
+        + reiniciar()
+        + guardar_puntaje(usuario: str)
+    }
 
-class Entidad {
-    +x: int
-    +y: int
-    +ancho: int
-    +alto: int
-    +color: (int, int, int)
-    +velocidad: int
-    +imagen: pygame.Surface
-    --
-    +rect(): pygame.Rect
-    +dibujar(pantalla: pygame.Surface)
-    +mover()
+    class Modeloentidades {
+    }
+
+    abstract class Entidad {
+        - x: int
+        - y: int
+        - velocidad: int
+        + mover()
+        + dibujar()
+        + colisiona_con(e: Entidad): bool
+    }
+
+    class Jugador {
+        - vidas: int
+        + disparar(): Proyectil
+    }
+
+    class Enemigo {
+        - probabilidad_disparo: float
+        + disparar(): Proyectil
+    }
+
+    class Proyectil {
+        - direccion: int
+    }
+
+    class usuarios_dao {
+        + cargar_usuarios(): dict
+        + guardar_usuarios(data: dict)
+        + existe_usuario(usuario: str): bool
+        + validar(usuario: str, contrasena: str): bool
+    }
+
+    class puntaje_dao {
+        + cargar_puntajes(): dict
+        + guardar_puntajes(data: dict)
+        + actualizar_puntaje(usuario: str, puntaje: int)
+        + obtener_puntaje(usuario: str): int
+    }
 }
 
-' ===========================
-'       SUBCLASES
-' ===========================
+package "Vista" {
+    class VistaPyGame {
+        + renderizar(modelo: Modelojuego)
+        + mostrar_gameover(puntaje: int, maximo: int)
+        + mostrar_hud(vidas: int, puntaje: int, nivel: int)
+    }
 
-class Jugador {
-    +mover(dx: int, dy: int, ancho_pantalla: int, alto_pantalla: int)
+    class FletLogin {
+        + mostrar()
+        + login(usuario: str, contrasena: str)
+        + registrar(usuario: str, contrasena: str)
+        + lanzar_juego(usuario: str)
+    }
 }
 
-class Enemigo {
-    +mover(ancho_pantalla: int, alto_pantalla: int)
+package "Controlador" {
+    class Controlador {
+        - modelo: Modelojuego
+        - vista: VistaPyGame
+        + ejecutar()
+        + procesar_eventos()
+    }
 }
 
-class Proyectil {
-    +mover()
-}
+' ================================
+'         RELACIONES
+' ================================
 
 Entidad <|-- Jugador
 Entidad <|-- Enemigo
 Entidad <|-- Proyectil
 
+Modelojuego "1" --> "1" Jugador
+Modelojuego "1" --> "*" Enemigo
+Modelojuego "1" --> "*" Proyectil
 
-' ===========================
-'          MODELO
-' ===========================
+Controlador --> Modelojuego
+Controlador --> VistaPyGame
 
-class ModeloJuego {
-    +ancho: int
-    +alto: int
-    +jugador: Jugador
-    +enemigos: List<Enemigo>
-    +proyectiles: List<Proyectil>
-    +puntaje: int
-    +game_over: bool
-    +escenarios: List<str>
-    +escenario_index: int
-    --
-    +disparar()
-    +cambiar_escenario()
-    +actualizar()
-    +reiniciar()
-}
+FletLogin --> usuarios_dao
+FletLogin --> puntaje_dao
+Modelojuego --> puntaje_dao
 
-ModeloJuego "1" *-- "1" Jugador
-ModeloJuego "1" *-- "many" Enemigo
-ModeloJuego "1" *-- "many" Proyectil
+VistaPyGame --> Modelojuego : consulta estado
 
-
-' ===========================
-'          VISTA
-' ===========================
-
-class VistaJuego {
-    +pantalla: pygame.Surface
-    +fuente: pygame.font
-    +fondos: Dict
-    +img_jugador: pygame.Surface
-    +img_enemigo: pygame.Surface
-    --
-    +dibujar()
-}
-
-VistaJuego --> ControladorJuego : usa
-ControladorJuego --> ModeloJuego : usa
-
-' ===========================
-'        CONTROLADOR
-' ===========================
-
-class ControladorJuego
+@enduml
