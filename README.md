@@ -38,9 +38,14 @@ Se emplearon únicamente dos patrones de diseño: MVC y DAO. Que tuvieron una de
 ## Diagramación del proyecto
 Aquí se muestran los diagramas tanto de clase como de casos de uso que se bosquejaron para el desarrollo de este proyecto.
 ### Diagrama de clases
--- Pendiente
-### Diagrama de casos de uso
--- Pendiente
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/878370a36fda81254baee0565ff621205da1c935/imagenes_doc/DiagramaClases.png)
+
+### Diagrama de Casos de Uso
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/878370a36fda81254baee0565ff621205da1c935/imagenes_doc/DiagramaCasosdeUso.png)
+
+### Diagrama de Secuencias
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/878370a36fda81254baee0565ff621205da1c935/imagenes_doc/DiagramaSecuencias.png)
+
 
 ## Características principales del proyecto
 Este proyecto posee características que vale la pena mencionar en aspectos tanto de funcionalidad, gestión, diseño, lógica, etc., que se presentan a continuación:
