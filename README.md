@@ -1,36 +1,24 @@
 # Videojuego en Python
-Este proyecto es un videojuego similar al clásico de arcade: Gálaga. Desarrollado en Python además de la implementación de otras tecnologías y patrones de diseño, así como una fuerte utilización del paradigma de programación orientada a objetos. 
-<<<<<<< HEAD
-El modo de juego de este proyecto es acerca de  disparar y esquivar ataques de enemigos, que hacen lo mismo. Se presentan múltiples niveles con fondos dirferentes, enemigos que nos atacan, así como un sistema de vida y puntuación.
-=======
-El modo de juego de este proyecto es basicamente disparar y esquivar ataques de enemigos, que hacen lo mismo. Se presentan múltiples niveles con fondos diferentes, enemigos que nos atacan, así como un sistema de vida y puntuación.
-[comentario]: # Aquí voy a poner una imagen de Gálaga
->>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
-
-## Software utilizado
-Como se mencionó anteriormente, se empleó el lenguaje de programación Python en la totalidad del proyecto, así como componentes inherentes al mismo tales como la librería pygame y flet, que se explican a continuación:
-
+Este proyecto conjunto consiste en un videojuego similar al clásico de arcade: Gálaga. Recordar que la mecánica del juego es de disparos, el protagonista del juego es una navecita espacial que se desplaza únicamente en dos direcciones: izquierda y derecha. Y se deben esquivar los disparos y las colisiones de naves enemigas que igualmente nos lanzan proyectiles.
+El objetivo general del juego es básicamente obtener el mayor puntaje posible, siguiendo la mecánica descrita anteriormente.
+El videojuego está desarrollado completamente en Python, con tecnologías inherentes al mismo, estas tecnologías son la librería pygame y Flet, en las que se ahondará a continuación:
 ### pygame
-Es una librería de Python, gratuita y de código abierto para el desarrolló de aplicaciones multimedia, especialmente videojuegos en 2D. Ésta fue de suma importancia en este proyecto para el manejo de los gráficos y el input del usuario a través del teclado para realizar las acciones como desplazarse y disparar, así como para reiniciar la partida una vez perdido el juego. 
-<<<<<<< HEAD
+Es una librería gratuita, multiplataforma y de código abierto para crear aplicaciones multimedia de manera sencilla. Y se eligió para este proyecto porque es una excelente opción para el desarrollo de videojuegos en 2D, lo cúal es el caso.
 
-Instalacion de pygame
-Para la instalacion de las librerias  de pygame  se ejecuto el comando pip install pygame en la terminal de comandos de python.
-=======
-[comentario]: # Aquí voy a poner el logo de pygame
->>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/a9d0168e0be73266a90e28e39e186165594b4737/imagenes_doc/pygame_logo.png)
+
+
+
+Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el siguiente comando:
+```
+pip install pygame
+```
 ### Flet
-Flet es un framework muy conocido de Python para interfaz de usuario enriquecido, que permite crear de manera rápida y sencilla aplicaciones web, de escritorio y/o móviles interactivas; ésto sin la necesidad de poseer conocimientos previos de HTML, JavaScript o estilos CSS.
-[comentario]: # Aquí voy a poner el logo de Flet
-Para este proyecto en concreto se utilizó para el desarrollo de la interfaz de usuario en la que el jugador (usuario) tiene que loguearse, o registrarse en su defecto.
+Flet es un framework de Python que permite crear aplicaciones web, móviles y de escritorio de manera sencilla, usando la potencia de Flutter pero sin la necesidad de escribir código en Dart ni tener experiencia previa en el desarrollo de frontend.
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/42d3b157e363725ac8cd763d621b56af475f0be7/imagenes_doc/flet_logo.png)
+
+
 <<<<<<< HEAD
-Para el desarrollo de este proyecto, se implemento flet para la interfaz que nos permite loguear un usuario, en esta interfaz se introduce el nombre del usuario y contraseña, esta se conecta con una base de datos.
-
-Para la instalacion de flet, en la terminal de comandos insertamos pip install flet.
-=======
-[comentario]: # Aquí voy a poner una captura de la interfaz de usuario
->>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
-
 ## Características principales
 A continuación se muestran carácterísticas destacables del proyecto.
 ### Arquitectura Modelo Vista Controlador
@@ -54,10 +42,10 @@ Se desarrollaron dos archivos.py para el DAO, uno se utilizo para guardar los us
 
 el otro archivo que se creo en el proyecto es un DAO que guarda los puntajes mas altos con el nombre de usuario, y se actualizan cada vez que el jugador alcanza un nuevo puntaje mayor al registrado previamente 
 
-=======
+
 Este patrón se aplico únicamente en la interfaz de usuario, concretamente para verificar la existencia del mismo, o si no existe crearlo y darlo de alta en el archivo json
 [comentario]: # Aquí voy a poner una captura del script dao.py
->>>>>>> 2a8e21ccf9e60e8117005455b9381e417369a937
+
 
 ## Estructutura del proyecto
 Esta sección es de crucial importancia, ya que se va a explicar detalladamente cada componente del proyecto, los assets, el archivo json, pero especialmente se discurrirá sobre el funcionamiento de los scripts, cómo se comunican entre ellos y el funcionamiento de todo el sistema.
@@ -65,136 +53,61 @@ Esta sección es de crucial importancia, ya que se va a explicar detalladamente 
 [comentario]: # Aquí voy a poner una captura de pantalla de la estructura del sistema: la identación de las carpetas y los scripts.
 ### dao.py
 Se realizó este script exclusivamente para la implementación de patrón DAO. Se encarga de gestionar el acceso de los usuarios (se comunica con la interfaz Flet), aplica las operaciones CRUD comunicandose con el archivo json.
+
+Se puede instalar fácilmente con pip desde la terminal o el Bash ingresando el siguiente comando:
+
 ```
-import json
-import os
-
-class UsuarioDAO:
-    def __init__(self, archivo="usuarios.json"):
-        self.archivo = archivo
-        if not os.path.exists(self.archivo):
-            with open(self.archivo, "w") as f:
-                json.dump({}, f)
-
-    def cargar_usuarios(self):
-        with open(self.archivo, "r") as f:
-            return json.load(f)
-
-    def guardar_usuarios(self, usuarios):
-        with open(self.archivo, "w") as f:
-            json.dump(usuarios, f, indent=4)
-
-    def agregar_usuario(self, usuario, contraseña):
-        usuarios = self.cargar_usuarios()
-        if usuario in usuarios:
-            raise ValueError("Usuario ya existe")
-        usuarios[usuario] = contraseña
-        self.guardar_usuarios(usuarios)
-
-    def verificar_usuario(self, usuario, contraseña):
-        usuarios = self.cargar_usuarios()
-        return usuarios.get(usuario) == contraseña
+pip install flet
 ```
-### flet_login.py
-Este es el script de la interfaz con Flet, es un sistema de registro y de login independiente; es una interfaz bastante amigable y fácil de entender para el usuario.
-Se muestra a continuación el código:
+
+## Diagramación del proyecto
+Aquí se muestran los diagramas tanto de clase como de casos de uso que se bosquejaron para el desarrollo de este proyecto.
+### Diagrama de clases
+-- Pendiente
+### Diagrama de casos de uso
+-- Pendiente
+
+## Características principales del proyecto
+Este proyecto posee características que vale la pena mencionar en aspectos tanto de funcionalidad, gestión, diseño, lógica, etc., que se presentan a continuación:
+### * Sistema de autenticación
+Posee un sistema de login **flet_login.py** que lanza el juego principal **main.py** pasando al usuario como argumento.
+### * Utilización de clases genéricas
+Dentro de la parte del modelo existe un uso notorio e importante de clase genéricas, concretamente dentro del archivo **Modeloentidades.py** donde existe una clase genérica llamada **Entidad**
+### * Persistencia de datos
+Utiliza archivos json para almacenar usuarios con sus respectivas contraseñas y puntuaciones. Y aquí el DAO (Data Access Object) se encarga de abstraer el acceso a estos archivos.
+### * Control de estados bien definido
+El juego posee tres estados claros y bien definidos: login, gameplay y game over. Y el controlador se encarga de manejar la transición entre estados.
+### * HUD (Head Up Display)
+Durante el gameplay se muestra en la parte superior izquierda información en tiempo real. Se muestran tus vidas, tu puntaje y el nivel actual.
+
+## Estructura del proyecto
+El proyecto se compone de los siguientes archivos, scripts, imágenes, etc. Que en su conjunto crean toda la funcionalidad del videojuego. Se muestra una breve descripción de cada uno:
 ```
-import flet as ft
-import subprocess
-from dao import UsuarioDAO
-
-def generar_login(page: ft.Page):
-    dao = UsuarioDAO()
-
-    # Configuración general de la página
-    page.title = "Login - Juego MVC"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.padding = 20
-    page.bgcolor = "#E3F2FD"
-
-    # Campos de usuario y contraseña
-    username = ft.TextField(label="Usuario", width=300, autofocus=True)
-    password = ft.TextField(label="Contraseña", password=True, can_reveal_password=True, width=300)
-    mensaje = ft.Text(value="", color="red", size=16)
-
-    # Función para registrar usuario
-    def registrar(e):
-        try:
-            dao.agregar_usuario(username.value, password.value)
-            mensaje.value = "Usuario registrado correctamente."
-            mensaje.color = "green"
-        except ValueError:
-            mensaje.value = "Nombre de usuario ya existe."
-            mensaje.color = "red"
-        page.update()
-
-    # Función para iniciar el juego
-    def iniciar_juego(e):
-        if dao.verificar_usuario(username.value, password.value):
-            mensaje.value = f"Bienvenido, {username.value}"
-            mensaje.color = "green"
-            page.update()
-            page.window_minimized = True
-            # Abrir Pygame pasando el usuario
-            subprocess.Popen(["python", "main.py", username.value])
-        else:
-            mensaje.value = "Usuario o contraseña incorrectos"
-            mensaje.color = "red"
-            page.update()
-
-    login_button = ft.ElevatedButton(
-        "Login",
-        on_click=iniciar_juego,
-        bgcolor="#1976D2",
-        color="white",
-        width=120
-    )
-    register_button = ft.ElevatedButton(
-        "Registrar",
-        on_click=registrar,
-        bgcolor="#388E3C",
-        color="white",
-        width=120
-    )
-
-    page.add(
-        ft.Column(
-            [
-                ft.Container(
-                    ft.Text("Juego MVC - Login", size=28, weight=ft.FontWeight.BOLD, color="#0D47A1"),
-                    padding=ft.padding.all(10),
-                    bgcolor="#BBDEFB",
-                    border_radius=10,
-                    alignment=ft.alignment.center
-                ),
-                ft.Container(height=20),
-                username,
-                password,
-                ft.Row([login_button, register_button], alignment=ft.MainAxisAlignment.SPACE_EVENLY, spacing=20),
-                mensaje
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=15
-        )
-    )
-
-def main():
-    ft.app(target=generar_login)
-
-if __name__ == "__main__":
-    main()
+prj_flet_2025B/
+├── Controlador/ # Lógica de control y coordinación
+│ ├── controlador.py # Coordina modelo y vista
+│ └── init.py
+├── Modelos/ # Capa de datos y lógica de negocio
+│ ├── Modeloentidades.py # Entidades del juego (Jugador, Enemigo, Proyectil)
+│ ├── Modelojuego.py # Lógica principal del juego
+│ ├── modelologin.py # Sistema de login integrado (Pygame)
+│ ├── puntaje_dao.py # Data Access Object para puntajes
+│ ├── usuarios_dao.py # Data Access Object para usuarios
+│ └── init.py
+├── Vista/ # Capa de presentación e interfaz
+│ ├── vista.py # Renderizado principal
+│ ├── assets/ # Recursos gráficos (fondos, sprites)
+│ └── init.py
+├── Diagramas/ # Diagramas de arquitectura, como clases y casos de uso
+├── main.py # Punto de entrada del juego (Pygame)
+├── flet_login.py # Sistema de autenticación externo (Flet) Es de aquí desde dónde se ejecuta el programa
+├── usuarios.json # Base de datos de usuarios
+├── puntajes.json # Base de datos de puntuaciones
+└── README.md # Documentación del proyecto
 ```
-Y la interfaz del proyecto se visualiza de la siguiente manera:
-[comentario]: # Aquí voy a poner una captura de pantalla de la interfaz.
-### usuarios.json
-Como se mencionó anteriormente, este archivo sirve como almacén de los usuarios, tiene la única función de guardar los registros; pues recordar que todo el código para manipular la información de los mismos se encuentra en dao.py.
-Se muestra a continuación el archivo:
-```
-```
-### Modelos
 
+## Módulos y componentes del Modelo Vista Controlador
+Esta es quizá la sección más importante, pues el proyecto sigue fielmente (y de manera muy notoria) este patrón de diseño. Como se mostró en la sección anterior, se creó una carpeta para cada elemento de este modelo, y es en esta sección que se profundizará sobre la funcionalidad de cada una.
 #### Modelojuego.py
 En la carpeta modelos se agregaron los modelos para diferetes funciones
 El archivo Modelojuego.py es una parte escencial en el desarrollo del proyecto, en el se encuentra toda la logica del Juego, en esta parte del MVC se programó todas las reglas del juego. y las funciones que realizan las entidades dentro del proyecto, en esta parte del codigo tenemos todas las operaciones que se crean en el juego. 
@@ -231,15 +144,21 @@ la actualizacion de puntajes se hace para guardar puntajes mayores, que el anter
 #### usuarios_dao.py
 Este arhivo contienen una clase UsuarioDAO que inicializa un archivo json usuarios.json,en caso de que no exista lo crea y si existe lo abre.
 esta clase contiene metodos para cargar usuarios, registrar nuevos usuarios, guardar y verificar que existan, estos metodos son escenciales al momento de logearse en el juego. Cuando se intenta agregar un usuario se verifica si ya existe , en dado caso muestra un mensaje de alerta, para verificar se llama entre metodos a cargar usuarios, que lee el archivo json de usuarios, y carga los datos.
-### vista.py
-Este script se encarga única y exclusivamente de la representación visual del juego, renderiza los elementos del juego, el HUD y las pantallas de estado. 
-Se muestra a continuación el código:
+
+
+### Vista
+En esta carpeta se encuentran los componentes visuales del proyecto, en otras palabras de la presentación. 
+Se compone de los suguientes elementos:
+#### vista.py
+Este script se encarga de renderizar los gráficos, mostrar la información (de manera visual obviamente) del modelo, la pantalla de visualización frontal y, por supuesto de gestionar los assets (elementos multimedia).
 ```
 import pygame
 
 class Vista:
     def __init__(self, modelo):
         self.modelo = modelo
+        # fuente base (puedes cambiar)
+        self.fuente = pygame.font.Font(None, 30)
 
     def dibujar(self):
         pantalla = self.modelo.pantalla
@@ -283,22 +202,48 @@ class Vista:
         fuente = pygame.font.Font(None, 60)
         texto = fuente.render("GAME OVER", True, (255,0,0))
         pantalla.blit(texto, (self.modelo.ancho//2 - 150, self.modelo.alto//2 - 30))
+
+        # Mostrar puntaje actual y highscore si hay usuario
+        fuente2 = pygame.font.Font(None, 30)
+        texto_puntaje = fuente2.render(f"Puntaje: {self.modelo.puntaje}", True, (255,255,255))
+        pantalla.blit(texto_puntaje, (self.modelo.ancho//2 - texto_puntaje.get_width()//2, self.modelo.alto//2 + 40))
+
+        usuario = self.modelo.usuario_actual or getattr(self.modelo.login, "usuario_logueado", "") or getattr(self.modelo.login, "usuario_ingresado", "")
+        if usuario:
+            high = self.modelo.puntaje_dao.obtener_puntaje(usuario)
+            texto_high = fuente2.render(f"Mejor puntaje ({usuario}): {high}", True, (255,255,0))
+            pantalla.blit(texto_high, (self.modelo.ancho//2 - texto_high.get_width()//2, self.modelo.alto//2 + 80))
+
         pygame.display.flip()
 ```
-### controlador.py
-Es el intermediario y corrdinador entre el usuario y la vista (del patrón de diseño MVC). Se encarga de gestionar el flujo principal del juego, procesar eventos del input, así como de manejar estados del juego como login, el juego en sí y el game over. 
-Se muestra a continuación el código:
+#### assets/
+Esta carpeta contiene todos lo elementos multimedia del juego, en este caso solo contiene imágenes porque no se implementó sonido o video.
+
+
+![image alt](https://github.com/ASJF996/prj_flet_2025B/blob/ea1236a1ba5a50dfb15561530efb8309bfc00a91/imagenes_doc/assets.png)
+
+
+
+
+### Controlador
+Es un intermediario entre el modelo y la vista, mejor dicho es quién coordina ambos. No contiene lógica de negocio ni lógica visual.
+Se compone únicamente del siguiente script:
+#### controlador.py
+Este script se encarga de manejar los datos de entrada, controlar el flujo de la aplicación y controlar el bucle principal del juego.
 ```
 import pygame
-from modelo import ModeloJuego
-from vista import Vista
+from Modelos.Modelojuego import ModeloJuego
+from Vista.vista import Vista
+from Modelos.modelologin import Login 
 
 class Controlador:
     def __init__(self, pantalla, usuario=None):
         self.pantalla = pantalla
         self.modelo = ModeloJuego(pantalla)
         if usuario:
+            self.modelo.usuario_actual = usuario
             self.modelo.login.login_exitoso = True
+            self.modelo.login.usuario_logueado = usuario
         self.vista = Vista(self.modelo)
 
     def iniciar(self):
@@ -311,12 +256,19 @@ class Controlador:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     corriendo = False
+
                 elif evento.type == pygame.KEYDOWN:
+
+                    if evento.key == pygame.K_ESCAPE:
+                        corriendo = False
+
                     if not self.modelo.login.login_exitoso:
                         self.modelo.login.procesar_tecla(evento.key)
+
                     else:
                         if evento.key == pygame.K_SPACE:
                             self.modelo.disparar()
+
                         elif evento.key == pygame.K_r and self.modelo.game_over:
                             self.modelo.reiniciar()
 
@@ -339,24 +291,8 @@ class Controlador:
 
             reloj.tick(60)
 ```
-### main.py
-Este es el punto de entrada principal del juego, se encarga de inicalizar pygame y el controlador, también de manejar argumentos de la línea de comandos para el usuario.
-```
-import pygame
-from controlador import Controlador
-import sys
+## Flujo del programa
 
-def main(usuario=None):
-    pygame.init()
-    pantalla = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Juego MVC")
-    controlador = Controlador(pantalla, usuario=usuario)
-    controlador.iniciar()
-    pygame.quit()
 
-if __name__ == "__main__":
-    usuario = None
-    if len(sys.argv) > 1:
-        usuario = sys.argv[1]  # recibe el usuario desde Flet si se quiere
-    main(usuario)
-```
+## Ejecución del Programa
+Como se mencionó anteroirmente, se ejecuta desde el archivo **flet_login.py**, al ejecutar nos desplegará la interfaz de flet. Y tendremos que loguearnos
